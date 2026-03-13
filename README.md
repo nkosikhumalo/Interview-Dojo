@@ -6,6 +6,7 @@ Interview Dojo is a high-performance, AI-powered training ground designed to hel
 ![Interview Dojo logo](frontend/public/favicon.png)
 
 🚀 The Stack
+
 - **Frontend**: React.js + Vite (Fast, modern UI)
 - **Backend**: Go (Golang) — Built for speed and concurrency
 - **AI Brain**: Integrated via Amazon Bedrock (Claude 3) & Google Gemini API
@@ -13,6 +14,7 @@ Interview Dojo is a high-performance, AI-powered training ground designed to hel
 - **Philosophy**: BYOK (Bring Your Own Key) — Scalable and privacy-focused
 
 ✨ Features
+
 - **AI Sensei**: Real-time mock interviews with adaptive questions.
 - **The "Vibe" Check**: Analysis of filler words (umms, likes) and pace of speech.
 - **STAR Method Grading**: The AI checks if your answers follow the Situation, Task, Action, Result framework.
@@ -35,14 +37,14 @@ git clone https://github.com/yourusername/interview-dojo.git
 cd interview-dojo
 ```
 
-2. **Ignite the Backend (Go)**
+1. **Ignite the Backend (Go)**
 
 ```bash
 cd backend
 go run main.go
 ```
 
-3. **Launch the Frontend (React)**
+1. **Launch the Frontend (React)**
 
 In a new terminal, from the project root:
 
@@ -58,4 +60,4 @@ We believe in user-owned data. All API keys are stored in your browser's `localS
 
 🎓 Author
 
-Built with ❤️ by a student breaking into tech.
+Built with ❤️ by Nkosimphile Khumalo
