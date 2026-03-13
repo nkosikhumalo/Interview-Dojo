@@ -38,7 +38,7 @@ Interview Dojo is a platform designed to assist candidates in preparing for thei
 Your data privacy is important to us. We ensure that all user data is handled securely and in compliance with relevant regulations. Passwords are hashed and sensitive information is never stored in plain text.
 
 ## Author
-- **Name:** Nkosikhumalo
-- **Contact:** nkosikhumalo@example.com
+- **Name:** Nkosimphile khumalo
+- **Contact:** iam.nkosii@gmail.com
 
 ---
