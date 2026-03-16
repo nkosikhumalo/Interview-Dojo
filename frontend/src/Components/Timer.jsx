@@ -1,0 +1,1 @@
+// A standalone component that handles the countdown.

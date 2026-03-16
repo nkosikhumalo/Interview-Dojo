@@ -1,0 +1,1 @@
+// A reusable pop-up for showing AI-generated critiques.
