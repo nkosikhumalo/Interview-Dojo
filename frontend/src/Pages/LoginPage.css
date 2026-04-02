@@ -1,0 +1,295 @@
+/* Login page layout & visuals for Interview Dojo.
+   Uses global :root variables from index.css for theme consistency. */
+
+.login-page {
+  min-height: 100svh;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  padding: clamp(1rem, 4vw, 2.5rem);
+  box-sizing: border-box;
+  position: relative;
+  overflow: hidden;
+  text-align: left;
+}
+
+.login-page__mesh {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse 80% 50% at 20% 40%, rgba(170, 59, 255, 0.22), transparent 55%),
+    radial-gradient(ellipse 60% 40% at 80% 20%, rgba(14, 165, 233, 0.18), transparent 50%),
+    radial-gradient(ellipse 50% 60% at 50% 100%, rgba(251, 146, 60, 0.1), transparent 45%),
+    var(--bg);
+}
+
+@media (prefers-color-scheme: dark) {
+  .login-page__mesh {
+    background:
+      radial-gradient(ellipse 80% 50% at 20% 40%, rgba(192, 132, 252, 0.2), transparent 55%),
+      radial-gradient(ellipse 60% 40% at 80% 20%, rgba(56, 189, 248, 0.12), transparent 50%),
+      radial-gradient(ellipse 50% 60% at 50% 100%, rgba(251, 146, 60, 0.08), transparent 45%),
+      var(--bg);
+  }
+}
+
+.login-page__grid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 420px);
+  gap: clamp(2rem, 6vw, 4rem);
+  max-width: 1040px;
+  width: 100%;
+  margin: auto;
+  align-items: center;
+}
+
+@media (max-width: 900px) {
+  .login-page__grid {
+    grid-template-columns: 1fr;
+    max-width: 440px;
+  }
+
+  .login-page__pitch {
+    text-align: center;
+    order: 2;
+  }
+}
+
+.login-page__pitch h1 {
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  letter-spacing: -0.03em;
+  margin: 0 0 0.75rem;
+  line-height: 1.15;
+}
+
+.login-page__pitch p {
+  font-size: 1.05rem;
+  line-height: 1.55;
+  margin: 0 0 1.5rem;
+  max-width: 36ch;
+}
+
+@media (max-width: 900px) {
+  .login-page__pitch p {
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+.login-page__badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+@media (max-width: 900px) {
+  .login-page__badges {
+    justify-content: center;
+  }
+}
+
+.login-page__badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  padding: 0.35rem 0.65rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--bg) 85%, var(--accent) 15%);
+  color: var(--text-h);
+}
+
+.login-page__card {
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: clamp(1.5rem, 4vw, 2.25rem);
+  box-shadow: var(--shadow);
+}
+
+.login-page__brand {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  margin-bottom: 1.5rem;
+}
+
+.login-page__logo {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  object-fit: cover;
+  border: 1px solid var(--border);
+  background: var(--code-bg);
+}
+
+.login-page__brand-text h2 {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.login-page__brand-text span {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--text);
+  margin-top: 0.15rem;
+}
+
+.login-page__label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+  color: var(--text-h);
+}
+
+.login-page__field {
+  margin-bottom: 1rem;
+}
+
+.login-page__input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.7rem 0.85rem;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text-h);
+  font: inherit;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.login-page__input::placeholder {
+  color: var(--text);
+  opacity: 0.75;
+}
+
+.login-page__input:focus {
+  outline: none;
+  border-color: var(--accent-border);
+  box-shadow: 0 0 0 3px var(--accent-bg);
+}
+
+.login-page__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.login-page__remember {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.85rem;
+  color: var(--text);
+  cursor: pointer;
+  user-select: none;
+}
+
+.login-page__remember input {
+  accent-color: var(--accent);
+  width: 1rem;
+  height: 1rem;
+}
+
+.login-page__link {
+  font-size: 0.85rem;
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.login-page__link:hover {
+  text-decoration: underline;
+}
+
+.login-page__submit {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  border: none;
+  border-radius: 12px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  color: #fff;
+  background: linear-gradient(135deg, #9333ea 0%, #7c3aed 40%, #0ea5e9 100%);
+  box-shadow: 0 4px 18px rgba(147, 51, 234, 0.35);
+  transition: transform 0.15s ease, box-shadow 0.2s ease, filter 0.2s;
+}
+
+.login-page__submit:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+  box-shadow: 0 8px 24px rgba(147, 51, 234, 0.4);
+}
+
+.login-page__submit:active {
+  transform: translateY(0);
+}
+
+.login-page__submit:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.login-page__divider {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 1.25rem 0;
+  color: var(--text);
+  font-size: 0.8rem;
+}
+
+.login-page__divider::before,
+.login-page__divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.login-page__guest {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--text-h);
+  background: transparent;
+  border: 1px solid var(--border);
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.login-page__guest:hover {
+  background: var(--social-bg);
+  border-color: var(--accent-border);
+}
+
+.login-page__footer {
+  margin-top: 1.25rem;
+  font-size: 0.8rem;
+  color: var(--text);
+  text-align: center;
+  line-height: 1.45;
+}
+
+.login-page__belt {
+  height: 4px;
+  border-radius: 999px;
+  margin-bottom: 1.5rem;
+  background: linear-gradient(90deg, #1e293b 0%, #f8fafc 18%, #1e293b 36%, #dc2626 50%, #1e293b 68%, #f8fafc 82%, #1e293b 100%);
+  opacity: 0.85;
+}
