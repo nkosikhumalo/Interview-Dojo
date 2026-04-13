@@ -1,8 +1,7 @@
 // Main interview page for the Dojo app.
-// Displays the current question, records voice using the Web Speech API,
-// submits transcript to the backend, and shows feedback.
 
 import { useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useInterviewStore } from '../store/store'
 import Navbar from '../Components/shared/Navbar'
 import Transcript from '../Components/Transcript'
@@ -14,6 +13,7 @@ import { PrimaryButton } from '../Components/ui/inputs'
 
 export default function Interview() {
   const { state, dispatch } = useInterviewStore()
+  const navigate = useNavigate()
   const [timerRunning, setTimerRunning] = useState(true)
 
   const question = state.currentQuestion
@@ -40,18 +40,33 @@ export default function Interview() {
     }
   }
 
+  function handleNewInterview() {
+    dispatch({ type: 'RESET' })
+    navigate('/setup')
+  }
+
   return (
     <div style={{ maxWidth: 960, margin: '0 auto', padding: 20 }}>
       <Navbar title="Dojo Interview" />
 
-      <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-        {question?.category ? <SkillTag label={question.category} /> : null}
-        <SkillTag label="AI interviewer" />
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
+        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+          {question?.category ? <SkillTag label={question.category} /> : null}
+          <SkillTag label="AI interviewer" />
+        </div>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button type="button" onClick={() => navigate('/history')} style={{ padding: '6px 12px', borderRadius: 8, border: '1px solid #ddd', cursor: 'pointer' }}>
+            History
+          </button>
+          <button type="button" onClick={handleNewInterview} style={{ padding: '6px 12px', borderRadius: 8, border: '1px solid #ddd', cursor: 'pointer' }}>
+            New Interview
+          </button>
+        </div>
       </div>
 
       <h2 style={{ marginTop: 16 }}>{question ? question.text : '...'}</h2>
 
-      <Timer seconds={60} running={timerRunning} onDone={() => {}} />
+      <Timer seconds={60} running={timerRunning} onDone={() => setTimerRunning(false)} />
 
       <Transcript
         onFinalTranscript={(finalText) => {

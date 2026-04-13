@@ -1,7 +1,5 @@
-// Setup page for the Dojo app.
-// Lets the user enter a job description/target role to tailor interview prompts.
-
 import { useEffect, useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useInterviewStore } from '../store/store'
 import { createInterviewSession, fetchNextQuestion } from '../services/api'
 import JobDescriptionInput from '../Components/JobDescriptionInput'
@@ -10,6 +8,7 @@ import { PrimaryButton } from '../Components/ui/inputs'
 
 export default function Setup() {
   const { state, dispatch } = useInterviewStore()
+  const navigate = useNavigate()
   const [localJobDescription, setLocalJobDescription] = useState(
     state.jobDescription || ''
   )
@@ -33,6 +32,8 @@ export default function Setup() {
 
     const question = await fetchNextQuestion(sessionId)
     dispatch({ type: 'SET_QUESTION', question })
+
+    navigate('/interview')
   }
 
   return (

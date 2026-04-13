@@ -1,30 +1,33 @@
 // Login page for Interview Dojo — branded sign-in UI.
-// Wire `onSignIn` / `onGuestContinue` from the router or parent when auth exists.
 
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import './LoginPage.css'
 
-export default function LoginPage({
-  onSignIn,
-  onGuestContinue,
-}) {
+export default function LoginPage({ onSignIn }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [busy, setBusy] = useState(false)
+  const navigate = useNavigate()
 
   function handleSubmit(e) {
     e.preventDefault()
+    setBusy(true)
     if (typeof onSignIn === 'function') {
-      setBusy(true)
-      Promise.resolve(onSignIn({ email, password })).finally(() => setBusy(false))
+      Promise.resolve(onSignIn({ email, password }))
+        .then(() => navigate('/setup'))
+        .finally(() => setBusy(false))
       return
     }
-    setBusy(true)
-    window.setTimeout(() => setBusy(false), 600)
+    // Stub: store a token and proceed.
+    localStorage.setItem('dojo_token', 'stub')
+    navigate('/setup')
+    setBusy(false)
   }
 
   function handleGuest() {
-    if (typeof onGuestContinue === 'function') onGuestContinue()
+    sessionStorage.setItem('dojo_guest', '1')
+    navigate('/setup')
   }
 
   return (
@@ -123,12 +126,6 @@ export default function LoginPage({
           >
             Continue without an account
           </button>
-
-          <p className="login-page__footer">
-            No backend auth yet — this screen is ready for your API. Hook up{' '}
-            <code style={{ fontSize: '0.85em' }}>onSignIn</code> when you ship
-            it.
-          </p>
         </div>
       </div>
     </div>

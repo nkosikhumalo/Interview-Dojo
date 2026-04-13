@@ -8,6 +8,7 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"sync"
+	"time"
 
 	"interview-dojo-api/models"
 )
@@ -16,6 +17,7 @@ type SessionStore interface {
 	Create(jobDescription string) *models.Session
 	Get(sessionID string) (*models.Session, bool)
 	UpdateQuestion(sessionID string, q *models.Question) bool
+	AppendHistory(sessionID string, entry models.HistoryEntry) bool
 }
 
 type inMemorySessionStore struct {
@@ -37,6 +39,8 @@ func (s *inMemorySessionStore) Create(jobDescription string) *models.Session {
 	session := &models.Session{
 		ID:             sessionID,
 		JobDescription: jobDescription,
+		CreatedAt:      time.Now(),
+		History:        []models.HistoryEntry{},
 	}
 	s.sessions[sessionID] = session
 	return session
@@ -62,10 +66,20 @@ func (s *inMemorySessionStore) UpdateQuestion(sessionID string, q *models.Questi
 	return true
 }
 
+func (s *inMemorySessionStore) AppendHistory(sessionID string, entry models.HistoryEntry) bool {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	session, ok := s.sessions[sessionID]
+	if !ok {
+		return false
+	}
+	session.History = append(session.History, entry)
+	return true
+}
+
 // newSessionID creates a simple unique session identifier.
-// Replace with UUID libraries if desired.
 func newSessionID() string {
-	// Fast enough for local dev; uses crypto randomness.
 	b := make([]byte, 16)
 	_, _ = rand.Read(b)
 	return hex.EncodeToString(b)

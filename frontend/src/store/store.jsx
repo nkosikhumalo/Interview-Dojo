@@ -48,6 +48,8 @@ function reducer(state, action) {
       return { ...state, feedback: action.feedback }
     case 'CLEAR_FEEDBACK':
       return { ...state, feedback: null }
+    case 'RESET':
+      return { ...initialState }
     default:
       return state
   }

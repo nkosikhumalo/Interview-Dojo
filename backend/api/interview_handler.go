@@ -2,11 +2,13 @@
 // - creating sessions
 // - fetching the next question
 // - submitting an answer for feedback
+// - retrieving session history
 
 package api
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 
@@ -68,12 +70,43 @@ func (h *interviewHandler) submitAnswer(c *gin.Context) {
 
 	feedback := interview.ScoreFeedback(req.Transcript)
 
+	// Record this answer in session history.
+	if session.CurrentQuestion != nil {
+		h.store.AppendHistory(req.SessionID, models.HistoryEntry{
+			Question:   *session.CurrentQuestion,
+			Transcript: req.Transcript,
+			Feedback:   feedback,
+			AnsweredAt: time.Now(),
+		})
+	}
+
 	nextQ := interview.NextQuestion(session.JobDescription)
 	h.store.UpdateQuestion(req.SessionID, nextQ)
 
 	c.JSON(http.StatusOK, models.SubmitAnswerResponse{
-		Feedback:    feedback,
+		Feedback:     feedback,
 		NextQuestion: nextQ,
+	})
+}
+
+func (h *interviewHandler) getHistory(c *gin.Context) {
+	sessionID := c.Query("sessionId")
+	if sessionID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "missing sessionId"})
+		return
+	}
+
+	session, ok := h.store.Get(sessionID)
+	if !ok {
+		c.JSON(http.StatusNotFound, gin.H{"error": "session not found"})
+		return
+	}
+
+	c.JSON(http.StatusOK, models.SessionSummary{
+		SessionID:      session.ID,
+		JobDescription: session.JobDescription,
+		CreatedAt:      session.CreatedAt,
+		History:        session.History,
 	})
 }
 
