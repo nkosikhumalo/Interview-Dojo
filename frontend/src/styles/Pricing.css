@@ -1,0 +1,235 @@
+.pricing-page {
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg);
+    text-align: left;
+}
+
+.pricing-mesh {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background:
+        radial-gradient(ellipse 60% 40% at 20% 20%, rgba(56, 189, 248, 0.07), transparent 55%),
+        radial-gradient(ellipse 50% 35% at 80% 80%, rgba(14, 165, 233, 0.05), transparent 50%);
+}
+
+.pricing-body {
+    position: relative;
+    z-index: 1;
+    flex: 1;
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: clamp(1.5rem, 4vw, 3rem) clamp(1rem, 4vw, 2rem);
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+}
+
+/* Under construction banner */
+.pricing-construction {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0.9rem 1.25rem;
+    border-radius: 12px;
+    background: rgba(245, 158, 11, 0.1);
+    border: 1px solid rgba(245, 158, 11, 0.35);
+    color: var(--yellow);
+    font-size: 0.92rem;
+    font-weight: 600;
+}
+
+.pricing-construction svg {
+    flex-shrink: 0;
+}
+
+/* Header */
+.pricing-header {
+    text-align: center;
+}
+
+.pricing-header h1 {
+    margin: 0 0 0.6rem;
+}
+
+.pricing-header p {
+    margin: 0;
+    font-size: 1rem;
+    color: var(--text);
+}
+
+/* Grid */
+.pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.25rem;
+    align-items: start;
+}
+
+/* Card */
+.pricing-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    box-shadow: var(--shadow);
+    position: relative;
+}
+
+.pricing-card--highlight {
+    border-color: var(--blue-border);
+    box-shadow: 0 0 0 1px var(--blue-border), var(--shadow-lg);
+}
+
+.pricing-card__popular {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--blue);
+    color: #0a0f1a;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 0.25rem 0.85rem;
+    border-radius: 999px;
+    white-space: nowrap;
+}
+
+.pricing-card__header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.pricing-card__header h2 {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--text-h);
+}
+
+.pricing-card__price {
+    display: flex;
+    align-items: baseline;
+    gap: 0.4rem;
+}
+
+.pricing-card__amount {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: var(--text-h);
+    line-height: 1;
+}
+
+.pricing-card__period {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.pricing-card__desc {
+    margin: 0;
+    font-size: 0.88rem;
+    color: var(--text);
+    line-height: 1.5;
+}
+
+/* Features */
+.pricing-card__features {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    flex: 1;
+}
+
+.pricing-card__features li {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 0.9rem;
+    color: var(--text);
+}
+
+.pricing-card__features li svg {
+    color: var(--blue);
+    flex-shrink: 0;
+}
+
+/* CTA */
+.pricing-card__cta {
+    width: 100%;
+    padding: 0.85rem 1rem;
+    border-radius: 10px;
+    font: inherit;
+    font-weight: 700;
+    font-size: 0.92rem;
+    cursor: not-allowed;
+    border: 1px solid var(--border);
+    background: var(--bg-raised);
+    color: var(--text-muted);
+    transition: none;
+}
+
+.pricing-card__cta--primary {
+    background: var(--blue);
+    color: #0a0f1a;
+    border: none;
+    opacity: 0.6;
+}
+
+/* BYOK section */
+.pricing-byok {
+    background: var(--bg-card);
+    border: 1px solid var(--blue-border);
+    border-radius: 16px;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.75rem;
+    box-shadow: var(--shadow);
+}
+
+.pricing-byok h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: var(--text-h);
+}
+
+.pricing-byok p {
+    margin: 0;
+    font-size: 0.92rem;
+    color: var(--text);
+    max-width: 48ch;
+    line-height: 1.6;
+}
+
+.pricing-byok__btn {
+    padding: 0.75rem 2rem;
+    border-radius: 10px;
+    border: none;
+    background: var(--blue);
+    color: #0a0f1a;
+    font: inherit;
+    font-weight: 700;
+    font-size: 0.92rem;
+    cursor: pointer;
+    transition: filter 0.15s;
+    margin-top: 0.25rem;
+}
+
+.pricing-byok__btn:hover {
+    filter: brightness(1.08);
+}

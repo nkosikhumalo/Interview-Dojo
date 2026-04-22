@@ -1,27 +1,55 @@
-// Route registration for the Dojo backend.
-
 package api
 
 import (
 	"github.com/gin-gonic/gin"
 
+	"interview-dojo-api/db"
 	"interview-dojo-api/storage"
 )
 
-// RegisterRoutes wires REST + WebSocket endpoints for the Dojo app.
-func RegisterRoutes(r *gin.Engine, store storage.SessionStore) {
-	h := newInterviewHandler(store)
+func RegisterRoutes(r *gin.Engine, store storage.SessionStore, database *db.DB) {
+	userRepo := db.NewUserRepo(database.DB)
+	sessionRepo := db.NewSessionRepo(database.DB)
+	apiKeyRepo := db.NewAPIKeyRepo(database.DB)
+	quotaRepo := db.NewQuotaRepo(database.DB)
 
-	// Legacy/simple endpoint.
-	r.GET("/api/question", getQuestion)
+	authH := newAuthHandler(userRepo)
+	oauthH := newOAuthHandler(userRepo)
+	interviewH := newInterviewHandler(store, sessionRepo, apiKeyRepo, quotaRepo)
+	apiKeyH := newAPIKeyHandler(apiKeyRepo)
+	transcribeH := newTranscribeHandler(apiKeyRepo)
+	quotaH := newQuotaHandler(quotaRepo)
 
-	// Interview flow endpoints.
-	r.POST("/api/interview/session", h.createSession)
-	r.GET("/api/interview/next-question", h.nextQuestion)
-	r.POST("/api/interview/submit", h.submitAnswer)
-	r.GET("/api/interview/history", h.getHistory)
+	// ── Public ──────────────────────────────────────────────────────────────
+	r.POST("/api/auth/signup", authH.signup)
+	r.POST("/api/auth/login", authH.login)
 
-	// Real-time WebSocket interview.
-	r.GET("/api/ws", handleWebSocket)
+	// ── OAuth (Google + Microsoft only) ─────────────────────────────────────
+	r.GET("/auth/:provider", oauthH.redirect)
+	r.GET("/auth/:provider/callback", oauthH.callback)
+
+	// ── Protected — any valid JWT ────────────────────────────────────────────
+	auth := r.Group("/")
+	auth.Use(RequireAuth)
+
+	auth.GET("/api/auth/me", authH.me)
+	auth.GET("/api/quota", quotaH.get)
+
+	// BYOK key management
+	auth.POST("/api/apikeys", apiKeyH.save)
+	auth.GET("/api/apikeys", apiKeyH.list)
+	auth.POST("/api/apikeys/:id/test", apiKeyH.test)
+	auth.POST("/api/apikeys/:id/activate", apiKeyH.activate)
+	auth.DELETE("/api/apikeys/:id", apiKeyH.delete)
+
+	// ── Interview routes — RequireInterviewAuth (must have a real user ID) ───
+	interview := r.Group("/")
+	interview.Use(RequireInterviewAuth)
+
+	interview.POST("/api/transcribe", transcribeH.transcribeAudio)
+	interview.POST("/api/interview/generate-questions", interviewH.generateQuestions)
+	interview.POST("/api/interview/evaluate-answer", interviewH.evaluateAnswer)
+	interview.GET("/api/interview/sessions", interviewH.getAllSessions)
+	interview.GET("/api/interview/history", interviewH.getHistory)
+	interview.GET("/api/ws", handleWebSocket)
 }
-

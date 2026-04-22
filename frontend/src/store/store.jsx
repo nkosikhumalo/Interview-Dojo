@@ -1,53 +1,58 @@
-// # Global state for the Dojo interview flow
-// Uses React Context + useReducer so pages/components can share:
-// - job description
-// - session id
-// - current question
-// - transcript + feedback
-
 import { createContext, useContext, useReducer } from 'react'
 
 const InterviewContext = createContext(null)
 
 const initialState = {
+  jobTitle: '',
   jobDescription: '',
   sessionId: null,
+  questions: [],        // all AI-generated questions for this session
+  questionIndex: 0,     // which question we're on
   currentQuestion: null,
   interimTranscript: '',
   finalTranscript: '',
-  feedback: null,
-  status: 'setup', // 'setup' | 'interview'
+  evaluation: null,     // rich AI evaluation result
+  status: 'setup',
 }
 
 function reducer(state, action) {
   switch (action.type) {
     case 'SET_JOB_DESCRIPTION':
       return { ...state, jobDescription: action.jobDescription }
+    case 'SET_JOB_TITLE':
+      return { ...state, jobTitle: action.jobTitle }
     case 'START_SESSION':
       return {
         ...state,
         sessionId: action.sessionId,
+        questions: action.questions,
+        questionIndex: 0,
+        currentQuestion: action.questions[0] ?? null,
         status: 'interview',
-        feedback: null,
+        evaluation: null,
         interimTranscript: '',
         finalTranscript: '',
       }
-    case 'SET_QUESTION':
+    case 'NEXT_QUESTION': {
+      const nextIndex = state.questionIndex + 1
+      const nextQ = state.questions[nextIndex] ?? null
       return {
         ...state,
-        currentQuestion: action.question,
-        feedback: null,
+        questionIndex: nextIndex,
+        currentQuestion: nextQ,
+        evaluation: null,
         interimTranscript: '',
         finalTranscript: '',
       }
+    }
     case 'SET_INTERIM_TRANSCRIPT':
       return { ...state, interimTranscript: action.transcript }
     case 'SET_FINAL_TRANSCRIPT':
       return { ...state, finalTranscript: action.transcript }
-    case 'SET_FEEDBACK':
-      return { ...state, feedback: action.feedback }
-    case 'CLEAR_FEEDBACK':
-      return { ...state, feedback: null }
+    case 'SET_EVALUATION':
+      return { ...state, evaluation: action.evaluation }
+    case 'CLEAR_EVALUATION':
+      return { ...state, evaluation: null }
     case 'RESET':
       return { ...initialState }
     default:

@@ -1,46 +1,109 @@
-// # API client for the Dojo app
-// Contains thin wrappers around HTTP calls to the Go (Gin) backend.
-
 import axios from 'axios'
 
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'
+const BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'
 
-export function createInterviewSession(jobDescription) {
-  return axios
-    .post(`${API_BASE_URL}/api/interview/session`, { jobDescription })
-    .then((res) => res.data)
+// ── Axios instance with automatic JWT injection ───────────────────────────────
+const api = axios.create({ baseURL: BASE })
+
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('dojo_token') || sessionStorage.getItem('dojo_token')
+  if (token) config.headers.Authorization = `Bearer ${token}`
+  return config
+})
+
+// Auto-logout on 401 — only redirect if the user had a token (not a guest)
+api.interceptors.response.use(
+  (res) => res,
+  (err) => {
+    if (err.response?.status === 401) {
+      const hadToken = localStorage.getItem('dojo_token') || sessionStorage.getItem('dojo_token')
+      localStorage.removeItem('dojo_token')
+      localStorage.removeItem('dojo_remembered_email')
+      sessionStorage.removeItem('dojo_token')
+      sessionStorage.removeItem('dojo_guest')
+      // Only hard-redirect if the user had a real token (expired/invalid).
+      // If they were a guest hitting a protected endpoint, let the component
+      // handle the error gracefully instead of bouncing them to login.
+      if (hadToken) {
+        window.location.href = '/login'
+      }
+    }
+    return Promise.reject(err)
+  }
+)
+
+// ── Auth endpoints ────────────────────────────────────────────────────────────
+
+export function apiSignup(name, email, password) {
+  return api.post('/api/auth/signup', { name, email, password }).then((r) => r.data)
 }
 
-export function fetchNextQuestion(sessionId) {
-  return axios
-    .get(`${API_BASE_URL}/api/interview/next-question`, {
-      params: { sessionId },
-    })
-    .then((res) => res.data)
+export function apiLogin(email, password) {
+  return api.post('/api/auth/login', { email, password }).then((r) => r.data)
 }
 
-export function submitAnswer({ sessionId, questionId, transcript }) {
-  return axios
-    .post(`${API_BASE_URL}/api/interview/submit`, {
-      sessionId,
-      questionId,
-      transcript,
-    })
-    .then((res) => res.data)
+export function apiGetMe() {
+  return api.get('/api/auth/me').then((r) => r.data)
+}
+
+export function getQuota() {
+  return api.get('/api/quota').then((r) => r.data)
+}
+
+// ── Interview endpoints ───────────────────────────────────────────────────────
+
+export function generateQuestions(sessionId, jobTitle, jobDescription) {
+  return api.post('/api/interview/generate-questions', { sessionId, jobTitle, jobDescription }).then((r) => r.data)
+}
+
+export function evaluateAnswer({ sessionId, question, transcript }) {
+  return api.post('/api/interview/evaluate-answer', { sessionId, question, transcript }).then((r) => r.data)
+}
+
+export function transcribeAudio(audioBlob) {
+  const form = new FormData()
+  form.append('audio', audioBlob, 'recording.webm')
+  return api.post('/api/transcribe', form, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  }).then((r) => r.data.transcript)
 }
 
 export function fetchHistory(sessionId) {
-  return axios
-    .get(`${API_BASE_URL}/api/interview/history`, { params: { sessionId } })
-    .then((res) => res.data)
+  return api.get('/api/interview/history', { params: { sessionId } }).then((r) => r.data)
 }
 
-// WebSocket client for live interview mode.
-// Returns a controller object with send() and close().
+export function fetchAllSessions() {
+  return api.get('/api/interview/sessions').then((r) => r.data.sessions)
+}
+
+// ── API Key management (BYOK) ─────────────────────────────────────────────────
+
+export function listAPIKeys() {
+  return api.get('/api/apikeys').then((r) => r.data.keys)
+}
+
+export function saveAPIKey(provider, apiKey) {
+  return api.post('/api/apikeys', { provider, apiKey }).then((r) => r.data)
+}
+
+export function testAPIKey(id) {
+  return api.post(`/api/apikeys/${id}/test`).then((r) => r.data)
+}
+
+export function activateAPIKey(id) {
+  return api.post(`/api/apikeys/${id}/activate`).then((r) => r.data)
+}
+
+export function deleteAPIKey(id) {
+  return api.delete(`/api/apikeys/${id}`).then((r) => r.data)
+}
+
+// ── WebSocket live session ────────────────────────────────────────────────────
+
 export function createLiveSession({ onQuestion, onFeedback, onError }) {
-  const wsBase = API_BASE_URL.replace(/^http/, 'ws')
-  const ws = new WebSocket(`${wsBase}/api/ws`)
+  const wsBase = BASE.replace(/^http/, 'ws')
+  const token = localStorage.getItem('dojo_token')
+  const ws = new WebSocket(`${wsBase}/api/ws?token=${token ?? ''}`)
 
   ws.onmessage = (event) => {
     try {
@@ -49,25 +112,18 @@ export function createLiveSession({ onQuestion, onFeedback, onError }) {
       if (msg.type === 'question') onQuestion?.(payload)
       else if (msg.type === 'feedback') onFeedback?.(payload)
       else if (msg.type === 'error') onError?.(payload)
-    } catch {
-      // ignore malformed frames
-    }
+    } catch { /* ignore */ }
   }
 
   ws.onerror = () => onError?.({ message: 'WebSocket connection error' })
 
   return {
-    start(jobDescription) {
-      ws.send(JSON.stringify({ type: 'start', payload: JSON.stringify({ jobDescription }) }))
-    },
-    sendTranscript(text) {
-      ws.send(JSON.stringify({ type: 'transcript', payload: JSON.stringify({ text }) }))
-    },
-    next() {
-      ws.send(JSON.stringify({ type: 'next', payload: '{}' }))
-    },
-    close() {
-      ws.close()
-    },
+    start: (jobDescription) =>
+      ws.send(JSON.stringify({ type: 'start', payload: JSON.stringify({ jobDescription }) })),
+    sendTranscript: (text) =>
+      ws.send(JSON.stringify({ type: 'transcript', payload: JSON.stringify({ text }) })),
+    next: () =>
+      ws.send(JSON.stringify({ type: 'next', payload: '{}' })),
+    close: () => ws.close(),
   }
 }

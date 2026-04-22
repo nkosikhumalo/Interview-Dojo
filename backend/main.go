@@ -1,29 +1,51 @@
 package main
 
 import (
+	"log"
+	"os"
+
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 
 	"interview-dojo-api/api"
+	"interview-dojo-api/db"
 	"interview-dojo-api/storage"
 )
 
 func main() {
-	// Root server entrypoint for the Dojo backend.
-	// Responsibilities:
-	// - configure Gin + CORS
-	// - initialize storage/session layer
-	// - register API routes
+	// Load .env file (ignored in production where env vars are set directly)
+	_ = godotenv.Load()
+
+	// Connect to PostgreSQL
+	database, err := db.Connect()
+	if err != nil {
+		log.Fatalf("[main] database error: %v", err)
+	}
+
 	r := gin.Default()
 
-	// Configure CORS so the React dev server can access the API.
-	r.Use(cors.Default())
+	// CORS — allow the React dev server
+	frontendURL := os.Getenv("FRONTEND_URL")
+	if frontendURL == "" {
+		frontendURL = "http://localhost:5173"
+	}
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{frontendURL},
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
+		AllowCredentials: true,
+	}))
 
-	// Initialize storage/session layer.
+	// In-memory session store (fast access during active interviews)
 	store := storage.NewInMemorySessionStore()
 
-	// Register all REST endpoints.
-	api.RegisterRoutes(r, store)
+	api.RegisterRoutes(r, store, database)
 
-	r.Run(":8080")
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+	log.Printf("[main] server starting on :%s", port)
+	r.Run(":" + port)
 }

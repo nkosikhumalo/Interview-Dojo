@@ -1,112 +1,164 @@
-// HTTP handlers for the Dojo interview flow:
-// - creating sessions
-// - fetching the next question
-// - submitting an answer for feedback
-// - retrieving session history
-
 package api
 
 import (
 	"net/http"
-	"time"
 
 	"github.com/gin-gonic/gin"
 
-	"interview-dojo-api/interview"
+	"interview-dojo-api/ai"
+	"interview-dojo-api/db"
 	"interview-dojo-api/models"
 	"interview-dojo-api/storage"
 )
 
 type interviewHandler struct {
-	store storage.SessionStore
+	store    storage.SessionStore
+	sessions *db.SessionRepo
+	apiKeys  *db.APIKeyRepo
+	quota    *db.QuotaRepo
+	registry *ai.Registry
 }
 
-func newInterviewHandler(store storage.SessionStore) *interviewHandler {
-	return &interviewHandler{store: store}
+func newInterviewHandler(store storage.SessionStore, sessions *db.SessionRepo, apiKeys *db.APIKeyRepo, quota *db.QuotaRepo) *interviewHandler {
+	return &interviewHandler{
+		store:    store,
+		sessions: sessions,
+		apiKeys:  apiKeys,
+		quota:    quota,
+		registry: ai.NewRegistry(),
+	}
 }
 
-func (h *interviewHandler) createSession(c *gin.Context) {
-	var req models.CreateSessionRequest
+func (h *interviewHandler) providerForUser(userID string) (ai.Provider, bool) {
+	if userID == "" {
+		return h.registry.ForUser("", ""), false
+	}
+	key, _ := h.apiKeys.GetDecrypted(userID, "gemini")
+	hasByok := key != ""
+	return h.registry.ForUser(key, "gemini"), hasByok
+}
+
+// POST /api/interview/generate-questions
+func (h *interviewHandler) generateQuestions(c *gin.Context) {
+	var req models.GenerateQuestionsRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request body"})
 		return
+	}
+
+	userID, _ := c.Get("userID")
+	uid, _ := userID.(string)
+
+	provider, hasByok := h.providerForUser(uid)
+
+	// Enforce quota only when using platform keys (not BYOK)
+	if uid != "" && !hasByok {
+		status, err := h.quota.Get(uid)
+		if err == nil && status.Exceeded {
+			c.JSON(http.StatusPaymentRequired, gin.H{
+				"error":            "Free plan limit reached",
+				"code":             "QUOTA_EXCEEDED",
+				"freeSessionsUsed": status.FreeSessionsUsed,
+				"limit":            status.Limit,
+			})
+			return
+		}
 	}
 
 	session := h.store.Create(req.JobDescription)
-	c.JSON(http.StatusOK, models.CreateSessionResponse{SessionID: session.ID})
-}
 
-func (h *interviewHandler) nextQuestion(c *gin.Context) {
-	sessionID := c.Query("sessionId")
-	if sessionID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "missing sessionId"})
+	if uid != "" {
+		go func() {
+			_ = h.sessions.CreateSession(session.ID, uid, req.JobTitle, req.JobDescription)
+			// Increment quota counter (no-op for paid plans or BYOK users)
+			if !hasByok {
+				_ = h.quota.Increment(uid)
+			}
+		}()
+	}
+
+	questions, err := provider.GenerateQuestions(req.JobTitle, req.JobDescription)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate questions: " + err.Error()})
 		return
 	}
 
-	session, ok := h.store.Get(sessionID)
-	if !ok {
-		c.JSON(http.StatusNotFound, gin.H{"error": "session not found"})
-		return
+	go func() {
+		_ = h.sessions.SaveQuestions(session.ID, questions)
+	}()
+
+	if len(questions) > 0 {
+		h.store.UpdateQuestion(session.ID, &questions[0])
 	}
 
-	q := interview.NextQuestion(session.JobDescription)
-	h.store.UpdateQuestion(sessionID, q)
-
-	c.JSON(http.StatusOK, q)
+	c.JSON(http.StatusOK, models.GenerateQuestionsResponse{
+		SessionID: session.ID,
+		Questions: questions,
+	})
 }
 
-func (h *interviewHandler) submitAnswer(c *gin.Context) {
-	var req models.SubmitAnswerRequest
+// POST /api/interview/evaluate-answer
+func (h *interviewHandler) evaluateAnswer(c *gin.Context) {
+	var req models.EvaluateAnswerRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request body"})
 		return
 	}
 
-	session, ok := h.store.Get(req.SessionID)
-	if !ok {
-		c.JSON(http.StatusNotFound, gin.H{"error": "session not found"})
+	userID, _ := c.Get("userID")
+	uid, _ := userID.(string)
+
+	provider, _ := h.providerForUser(uid)
+	result, err := provider.EvaluateAnswer(req.Question, req.Transcript)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to evaluate answer: " + err.Error()})
 		return
 	}
 
-	feedback := interview.ScoreFeedback(req.Transcript)
+	go func() {
+		_ = h.sessions.SaveAnswer(req.SessionID, req.Question, req.Transcript, result)
+	}()
 
-	// Record this answer in session history.
-	if session.CurrentQuestion != nil {
-		h.store.AppendHistory(req.SessionID, models.HistoryEntry{
-			Question:   *session.CurrentQuestion,
-			Transcript: req.Transcript,
-			Feedback:   feedback,
-			AnsweredAt: time.Now(),
-		})
-	}
-
-	nextQ := interview.NextQuestion(session.JobDescription)
-	h.store.UpdateQuestion(req.SessionID, nextQ)
-
-	c.JSON(http.StatusOK, models.SubmitAnswerResponse{
-		Feedback:     feedback,
-		NextQuestion: nextQ,
-	})
+	c.JSON(http.StatusOK, result)
 }
 
+// GET /api/interview/sessions
+func (h *interviewHandler) getAllSessions(c *gin.Context) {
+	userID, _ := c.Get("userID")
+	uid, ok := userID.(string)
+	if !ok || uid == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "not authenticated"})
+		return
+	}
+	sessions, err := h.sessions.GetAllSessions(uid)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to load sessions"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"sessions": sessions})
+}
+
+// GET /api/interview/history
 func (h *interviewHandler) getHistory(c *gin.Context) {
 	sessionID := c.Query("sessionId")
 	if sessionID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "missing sessionId"})
 		return
 	}
-
-	session, ok := h.store.Get(sessionID)
-	if !ok {
+	jobTitle, jobDesc, createdAt, err := h.sessions.GetSessionMeta(sessionID)
+	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "session not found"})
 		return
 	}
-
-	c.JSON(http.StatusOK, models.SessionSummary{
-		SessionID:      session.ID,
-		JobDescription: session.JobDescription,
-		CreatedAt:      session.CreatedAt,
-		History:        session.History,
+	history, _ := h.sessions.GetSessionHistory(sessionID)
+	if history == nil {
+		history = []models.HistoryEntry{}
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"sessionId":      sessionID,
+		"jobTitle":       jobTitle,
+		"jobDescription": jobDesc,
+		"createdAt":      createdAt,
+		"history":        history,
 	})
 }
-
