@@ -33,7 +33,7 @@ FoxVue is a full-stack AI interview trainer. You paste a job description, the AI
 |:---:|:---:|:---:|
 | ![Login](frontend/src/assets/1.png) | ![Setup](frontend/src/assets/2.png) | ![Interview](frontend/src/assets/3.png) |
 
-| AI Feedback | History | Pricing |
+| API Keys | Pricing | Interview |
 |:---:|:---:|:---:|
 | ![Feedback](frontend/src/assets/4.png) | ![History](frontend/src/assets/5.png) | ![Pricing](frontend/src/assets/6.png) |
 
