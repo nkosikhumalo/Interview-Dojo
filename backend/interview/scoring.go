@@ -8,7 +8,7 @@ import (
 	"regexp"
 	"strings"
 
-	"interview-dojo-api/models"
+	"foxvue-api/models"
 )
 
 var fillerWords = []string{

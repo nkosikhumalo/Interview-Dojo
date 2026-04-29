@@ -12,8 +12,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 
-	"interview-dojo-api/interview"
-	"interview-dojo-api/models"
+	"foxvue-api/interview"
+	"foxvue-api/models"
 )
 
 var upgrader = websocket.Upgrader{

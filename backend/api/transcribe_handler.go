@@ -17,7 +17,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"interview-dojo-api/db"
+	"foxvue-api/db"
 )
 
 const transcribeURL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent"

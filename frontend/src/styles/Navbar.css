@@ -167,3 +167,50 @@
 .navbar__signup-cta:hover {
     filter: brightness(1.08);
 }
+
+/* ── Tablet (768px) ── */
+@media (max-width: 768px) {
+    .navbar__inner {
+        height: 60px;
+        padding: 0 1rem;
+    }
+
+    .navbar__nav {
+        gap: 1px;
+        padding: 2px;
+    }
+
+    .navbar__link {
+        padding: 0.38rem 0.55rem;
+        font-size: 0.82rem;
+    }
+
+    .navbar__link span {
+        display: none;
+    }
+
+    .navbar__logout span {
+        display: none;
+    }
+
+    .navbar__logout {
+        padding: 0.38rem 0.55rem;
+    }
+
+    .navbar__signup-cta {
+        padding: 0.38rem 0.7rem;
+        font-size: 0.78rem;
+    }
+}
+
+/* ── Mobile (480px) ── */
+@media (max-width: 480px) {
+    .navbar__inner {
+        height: 56px;
+        grid-template-columns: auto 1fr auto;
+    }
+
+    .navbar__title {
+        display: none;
+    }
+}

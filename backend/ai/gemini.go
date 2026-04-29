@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"interview-dojo-api/models"
+	"foxvue-api/models"
 )
 
 const geminiEndpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent"

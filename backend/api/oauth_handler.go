@@ -16,7 +16,7 @@ import (
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/endpoints"
 
-	"interview-dojo-api/db"
+	"foxvue-api/db"
 )
 
 type oauthHandler struct {

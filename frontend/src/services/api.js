@@ -42,6 +42,14 @@ export function apiLogin(email, password) {
   return api.post('/api/auth/login', { email, password }).then((r) => r.data)
 }
 
+export function apiForgotPassword(email) {
+  return api.post('/api/auth/forgot-password', { email }).then((r) => r.data)
+}
+
+export function apiResetPassword(token, password) {
+  return api.post('/api/auth/reset-password', { token, password }).then((r) => r.data)
+}
+
 export function apiGetMe() {
   return api.get('/api/auth/me').then((r) => r.data)
 }

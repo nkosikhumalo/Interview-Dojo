@@ -7,7 +7,7 @@ import (
 	"math/rand"
 	"strings"
 
-	"interview-dojo-api/models"
+	"foxvue-api/models"
 )
 
 var seedRand = rand.Intn(1000)

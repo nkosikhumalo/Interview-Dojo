@@ -1,204 +1,228 @@
-# 🥋 Interview Dojo
+<div align="center">
 
-<p>
-  <img src="https://img.shields.io/badge/Frontend-React%20%2B%20Vite-61DAFB?style=for-the-badge&logo=react&logoColor=111827" alt="Frontend React + Vite" />
-  <img src="https://img.shields.io/badge/Backend-Go%20%2B%20Gin-00ADD8?style=for-the-badge&logo=go&logoColor=white" alt="Backend Go + Gin" />
-  <img src="https://img.shields.io/badge/Database-PostgreSQL-336791?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL" />
-  <img src="https://img.shields.io/badge/AI-Gemini%20%7C%20BYOK-7C3AED?style=for-the-badge" alt="Gemini and BYOK" />
-</p>
+<img src="frontend/public/favicon.png" width="64" alt="FoxVue" style="border-radius:16px" />
 
-## Master the Art of the Interview with AI
+# FoxVue
 
-Interview Dojo is a full-stack AI interview trainer that helps users prepare for technical and behavioral interviews through realistic mock sessions.  
-It supports job-specific question generation, voice-based answers, transcript analysis, and actionable feedback (including STAR structure and filler-word metrics).
+**AI-powered interview practice platform**
 
-![Interview Dojo logo](frontend/public/favicon.png)
+*Speak your answers. Get instant AI feedback. Land the job.*
 
----
+<br/>
 
-## ✨ What You Can Do
+[![Go](https://img.shields.io/badge/Go_1.25-00ADD8?style=for-the-badge&logo=go&logoColor=white)](https://go.dev)
+[![React](https://img.shields.io/badge/React_19-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://react.dev)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL_16-316192?style=for-the-badge&logo=postgresql&logoColor=white)](https://postgresql.org)
+[![Gemini](https://img.shields.io/badge/Gemini_AI-4285F4?style=for-the-badge&logo=google&logoColor=white)](https://ai.google.dev)
+[![JWT](https://img.shields.io/badge/JWT-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=white)](https://jwt.io)
+[![License](https://img.shields.io/badge/License-MIT-38bdf8?style=for-the-badge)](LICENSE)
 
-- Generate interview questions based on **job title + job description**
-- Speak your answers and convert audio to text through backend transcription
-- Get AI evaluation with:
-  - score and summary
-  - clarity / communication / technical depth breakdown
-  - STAR framework guidance
-  - filler-word analysis
-- View session history and track interview progress over time
-- Sign in with email/password or OAuth (Google / Microsoft)
-- Use BYOK API keys and manage provider preferences
+</div>
 
 ---
 
-## 🧱 Tech Stack
+## ✨ What is FoxVue?
 
-### Frontend
-- React 19 + Vite
-- React Router for route guards and page flow
-- Axios with auth token handling
-- Custom hooks for media recording and speech handling
-
-### Backend
-- Go + Gin HTTP server
-- JWT auth + OAuth2 login
-- PostgreSQL via `sqlx`
-- WebSocket endpoint scaffold for real-time interview interaction
-
-### AI and Evaluation
-- Provider registry pattern for AI backends
-- Gemini integration active
-- BYOK key management (encrypted at rest)
+FoxVue is a full-stack AI interview trainer. You paste a job description, the AI generates 5 tailored interview questions, you record your spoken answer, and the AI evaluates your response — scoring clarity, technical accuracy, and communication, then giving you a sample answer and a follow-up question.
 
 ---
 
-## 🗂️ Project Structure
+## 🖼️ Screenshots
 
-```plaintext
-Interview-Dojo/
-├── frontend/
-│   ├── src/
-│   │   ├── Pages/          # Login, setup, interview, history, pricing, OAuth callback
-│   │   ├── Components/     # UI building blocks + interview-specific components
-│   │   ├── hooks/          # Media recorder + speech hooks
-│   │   ├── services/       # API client and websocket helpers
-│   │   └── store/          # Global interview state
-│   └── public/
-├── backend/
-│   ├── api/                # Gin handlers + route registration + middleware
-│   ├── ai/                 # Provider registry and AI integrations
-│   ├── db/                 # DB connection + repositories + migrations
-│   ├── models/             # Shared request/response/data models
-│   ├── storage/            # In-memory runtime session store
-│   └── main.go
-└── README.md
+| Login | Setup | Interview |
+|:---:|:---:|:---:|
+| ![Login](frontend/src/assets/1.png) | ![Setup](frontend/src/assets/2.png) | ![Interview](frontend/src/assets/3.png) |
+
+| AI Feedback | History | Pricing |
+|:---:|:---:|:---:|
+| ![Feedback](frontend/src/assets/4.png) | ![History](frontend/src/assets/5.png) | ![Pricing](frontend/src/assets/6.png) |
+
+| API Keys | Reset Password | Mobile |
+|:---:|:---:|:---:|
+| ![API Keys](frontend/src/assets/7.png) | ![Reset](frontend/src/assets/8.png) | ![Mobile](frontend/src/assets/9.png) |
+
+---
+
+## 🏗️ Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                         BROWSER                                  │
+│                                                                   │
+│   React 19 + Vite                                                │
+│   ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────────┐   │
+│   │  Login   │  │  Setup   │  │Interview │  │   History    │   │
+│   │  /signup │  │  /setup  │  │  /room   │  │  /history    │   │
+│   └──────────┘  └──────────┘  └──────────┘  └──────────────┘   │
+│                                                                   │
+│   MediaRecorder API → audio blob → POST /api/transcribe          │
+│   JWT stored in localStorage / sessionStorage                    │
+└───────────────────────────┬─────────────────────────────────────┘
+                            │  HTTPS + Bearer JWT
+                            ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                      GO + GIN  :8080                             │
+│                                                                   │
+│  ┌─────────────────────────────────────────────────────────┐    │
+│  │                    MIDDLEWARE                            │    │
+│  │  RequireAuth (JWT)  │  RequireInterviewAuth (JWT+UID)   │    │
+│  └─────────────────────────────────────────────────────────┘    │
+│                                                                   │
+│  PUBLIC ROUTES                  PROTECTED ROUTES                 │
+│  ┌──────────────────┐           ┌──────────────────────────┐    │
+│  │ POST /auth/signup│           │ POST /interview/generate │    │
+│  │ POST /auth/login │           │ POST /interview/evaluate │    │
+│  │ POST /auth/forgot│           │ POST /transcribe         │    │
+│  │ POST /auth/reset │           │ GET  /interview/sessions │    │
+│  │ GET  /auth/:oauth│           │ GET  /api/quota          │    │
+│  └──────────────────┘           │ CRUD /api/apikeys        │    │
+│                                 └──────────────────────────┘    │
+│                                                                   │
+│  ┌─────────────────────────────────────────────────────────┐    │
+│  │                   AI REGISTRY                           │    │
+│  │  User BYOK key → first priority                         │    │
+│  │  Platform keys → fallback (4 keys, auto-rotate)         │    │
+│  │  Provider interface: GenerateQuestions + EvaluateAnswer │    │
+│  └─────────────────────────────────────────────────────────┘    │
+└──────────┬──────────────────────────────────┬───────────────────┘
+           │                                  │
+           ▼                                  ▼
+┌──────────────────────┐          ┌───────────────────────────────┐
+│   PostgreSQL :5432   │          │       GEMINI API              │
+│                      │          │                               │
+│  users               │          │  gemini-flash-latest          │
+│  ├─ id (UUID)        │          │                               │
+│  ├─ email            │          │  GenerateQuestions()          │
+│  ├─ password_hash    │          │  → 5 tailored questions       │
+│  ├─ plan / role      │          │  → skill + category tags      │
+│  ├─ reset_token      │          │                               │
+│  └─ free_sessions    │          │  EvaluateAnswer()             │
+│                      │          │  → score 1-10                 │
+│  interview_sessions  │          │  → clarity / technical /      │
+│  session_questions   │          │    communication scores       │
+│  interview_answers   │          │  → strengths + weaknesses     │
+│  user_api_keys       │          │  → sample answer              │
+│  └─ AES-256-GCM      │          │  → follow-up question         │
+└──────────────────────┘          └───────────────────────────────┘
+           │
+           ▼
+┌──────────────────────┐
+│    SMTP (Gmail)      │
+│                      │
+│  Password reset flow │
+│  → crypto/rand token │
+│  → SHA-256 hash in DB│
+│  → 30 min expiry     │
+│  → single-use link   │
+└──────────────────────┘
 ```
 
 ---
 
-## 🔌 API Overview
+## 🔑 Key Features
 
-### Auth
-- `POST /api/auth/signup`
-- `POST /api/auth/login`
-- `GET /api/auth/me`
-
-### OAuth
-- `GET /auth/:provider`
-- `GET /auth/:provider/callback`
-
-### Interview
-- `POST /api/interview/generate-questions`
-- `POST /api/interview/evaluate-answer`
-- `GET /api/interview/sessions`
-- `GET /api/interview/history?sessionId=...`
-
-### Voice + Realtime
-- `POST /api/transcribe`
-- `GET /api/ws`
-
-### BYOK + Quota
-- `GET /api/quota`
-- `POST /api/apikeys`
-- `GET /api/apikeys`
-- `POST /api/apikeys/:id/test`
-- `POST /api/apikeys/:id/activate`
-- `DELETE /api/apikeys/:id`
+| Feature | Details |
+|---|---|
+| 🎤 **Voice Recording** | MediaRecorder API — works in Chrome, Firefox, Safari |
+| 🤖 **AI Questions** | Gemini generates 5 tailored questions from your job description |
+| 📊 **Rich Feedback** | Score, STAR rating, strengths, weaknesses, sample answer, follow-up |
+| 🔐 **Secure Auth** | JWT HS256 · bcrypt passwords · OAuth (Google, Microsoft) |
+| 🔑 **BYOK** | Bring your own Gemini/OpenAI/Anthropic key — AES-256 encrypted at rest |
+| 📧 **Password Reset** | SMTP email · crypto/rand token · SHA-256 hashed · 30 min expiry |
+| 💳 **Quota System** | Free: 2 sessions · BYOK users exempt · Admin bypasses all limits |
+| 📱 **Responsive** | Works on desktop, tablet, and mobile |
 
 ---
 
 ## ⚡ Quick Start
 
-### 1) Clone
 ```bash
-git clone https://github.com/yourusername/interview-dojo.git
-cd interview-dojo
-```
+# 1 — Clone
+git clone https://github.com/yourusername/foxvue.git
+cd foxvue
 
-### 2) Start Backend
-```bash
+# 2 — Backend
 cd backend
-go mod tidy
-go run main.go
-```
+cp .env.example .env      # fill in your values
+go run main.go            # starts on :8080
 
-Backend default: `http://localhost:8080`
-
-### 3) Start Frontend
-```bash
+# 3 — Frontend (new terminal)
 cd frontend
 npm install
-npm run dev
+npm run dev               # starts on :5173
 ```
 
-Frontend default: `http://localhost:5173`
+Open **http://localhost:5173**
 
 ---
 
 ## 🔐 Environment Variables
 
-Create `backend/.env` (or export these values):
+```env
+# backend/.env
 
-```bash
-PORT=8080
+DATABASE_URL=postgres://postgres:yourpassword@localhost:5432/foxvue?sslmode=disable
+JWT_SECRET=your-long-random-secret
+GEMINI_API_KEYS=key1,key2,key3          # comma-separated, auto-rotates on quota errors
+API_KEY_ENCRYPTION_SECRET=exactly32chars!!!!!!!!!!!!!!  # AES-256 key
+
+# SMTP — use a Gmail App Password (no spaces)
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=you@gmail.com
+SMTP_PASS=yourgmailapppassword
+SMTP_FROM=you@gmail.com
+
 FRONTEND_URL=http://localhost:5173
-DATABASE_URL=postgres://user:password@localhost:5432/interview_dojo?sslmode=disable
-JWT_SECRET=change-me
-
-# AI
-GEMINI_API_KEY=your_key_here
-# optional multi-key config:
-# GEMINI_API_KEYS=key1,key2,key3
-
-# BYOK key encryption
-API_KEY_ENCRYPTION_SECRET=32_byte_minimum_secret_here
-
-# OAuth
-GOOGLE_CLIENT_ID=
-GOOGLE_CLIENT_SECRET=
-MICROSOFT_CLIENT_ID=
-MICROSOFT_CLIENT_SECRET=
-MICROSOFT_TENANT=common
 OAUTH_REDIRECT_BASE=http://localhost:8080
+GOOGLE_CLIENT_ID=...
+GOOGLE_CLIENT_SECRET=...
+MICROSOFT_CLIENT_ID=...
+MICROSOFT_CLIENT_SECRET=...
 ```
 
-Optional frontend env (`frontend/.env`):
+---
 
-```bash
-VITE_API_BASE_URL=http://localhost:8080
+## 📁 Project Structure
+
+```
+foxvue/
+├── backend/
+│   ├── ai/             Provider interface + Gemini implementation + Registry
+│   ├── api/            Gin handlers, middleware, routes
+│   ├── db/             PostgreSQL repos + migrations (auto-run on startup)
+│   ├── email/          SMTP mailer with STARTTLS
+│   ├── models/         Shared Go structs
+│   ├── storage/        In-memory session store
+│   └── main.go
+│
+└── frontend/
+    └── src/
+        ├── Pages/      Login · Setup · Interview · History · Pricing · API Keys
+        ├── Components/ Navbar · VoiceVisualizer · shared UI
+        ├── hooks/      useMediaRecorder
+        ├── services/   Axios API client (auto JWT injection)
+        ├── store/      React Context + useReducer
+        └── styles/     Per-page CSS with CSS variables
 ```
 
 ---
 
-## 🔁 Interview Flow
+## 🛡️ Security
 
-1. User signs in (or guest flow) and enters job context.
-2. Frontend requests generated questions from backend.
-3. User records answer (audio).
-4. Audio is transcribed and submitted with question/session data.
-5. Backend evaluates answer and returns structured feedback.
-6. Session history is saved and viewable later.
-
----
-
-## 🛡️ Security Notes
-
-- JWT-protected APIs for authenticated routes
-- Password hashing with bcrypt
-- API keys encrypted at rest (AES-GCM in repository layer)
-- CORS restricted via `FRONTEND_URL`
+- Passwords hashed with **bcrypt** (cost 10)
+- Password reset tokens: **crypto/rand** → **SHA-256** stored, raw token in email only
+- BYOK API keys: **AES-256-GCM** encrypted, only masked hint returned to frontend
+- JWT carries `role` claim — admin role bypasses quota
+- CORS restricted to `FRONTEND_URL`
+- All AI calls proxied through backend — keys never reach the browser
 
 ---
 
-## 🚀 Roadmap Ideas
+<div align="center">
 
-- Live interview mode over WebSockets
-- More provider switching at runtime (Gemini/OpenAI/Anthropic/AWS)
-- Team dashboards and recruiter review mode
-- Better analytics for speaking pace and confidence trends
+**Built by Nkosimphile Khumalo**
 
----
+[![GitHub](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/yourusername)
 
-## 👨‍💻 Author
-
-Built with focus and consistency by **Nkosimphile Khumalo**.
+</div>

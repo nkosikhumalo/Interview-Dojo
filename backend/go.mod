@@ -1,4 +1,4 @@
-module interview-dojo-api
+module foxvue-api
 
 go 1.25.0
 

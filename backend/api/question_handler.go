@@ -7,8 +7,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"interview-dojo-api/interview"
-	"interview-dojo-api/models"
+	"foxvue-api/interview"
+	"foxvue-api/models"
 )
 
 func getQuestion(c *gin.Context) {

@@ -8,9 +8,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 
-	"interview-dojo-api/api"
-	"interview-dojo-api/db"
-	"interview-dojo-api/storage"
+	"foxvue-api/api"
+	"foxvue-api/db"
+	"foxvue-api/storage"
 )
 
 func main() {

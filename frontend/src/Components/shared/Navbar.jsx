@@ -83,8 +83,8 @@ export default function Navbar() {
       <div className="navbar__inner">
 
         <button className="navbar__brand" onClick={() => navigate('/setup')}>
-          <img src="/favicon.png" alt="Interview Dojo" className="navbar__logo" />
-          <span className="navbar__title">Interview Dojo</span>
+          <img src="/favicon.png" alt="FoxVue" className="navbar__logo" />
+          <span className="navbar__title">FoxVue</span>
         </button>
 
         <nav className="navbar__nav" aria-label="Main navigation">

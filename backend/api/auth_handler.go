@@ -13,7 +13,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 
-	"interview-dojo-api/db"
+	"foxvue-api/db"
 )
 
 type authHandler struct {
@@ -84,13 +84,12 @@ func (h *authHandler) login(c *gin.Context) {
 
 	user, err := h.users.GetByEmail(body.Email)
 	if err != nil || user.PasswordHash == nil {
-		// Don't reveal whether the email exists
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid email or password."})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Wrong credentials! Please check your email and password."})
 		return
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(*user.PasswordHash), []byte(body.Password)); err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid email or password."})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Wrong credentials! Please check your email and password."})
 		return
 	}
 

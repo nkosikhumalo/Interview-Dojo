@@ -1,6 +1,6 @@
 package ai
 
-import "interview-dojo-api/models"
+import "foxvue-api/models"
 
 // Provider is the single interface every AI backend must satisfy.
 type Provider interface {

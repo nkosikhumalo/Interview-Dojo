@@ -3,8 +3,8 @@ package api
 import (
 	"github.com/gin-gonic/gin"
 
-	"interview-dojo-api/db"
-	"interview-dojo-api/storage"
+	"foxvue-api/db"
+	"foxvue-api/storage"
 )
 
 func RegisterRoutes(r *gin.Engine, store storage.SessionStore, database *db.DB) {
@@ -14,6 +14,7 @@ func RegisterRoutes(r *gin.Engine, store storage.SessionStore, database *db.DB) 
 	quotaRepo := db.NewQuotaRepo(database.DB)
 
 	authH := newAuthHandler(userRepo)
+	resetH := newResetHandler(userRepo)
 	oauthH := newOAuthHandler(userRepo)
 	interviewH := newInterviewHandler(store, sessionRepo, apiKeyRepo, quotaRepo)
 	apiKeyH := newAPIKeyHandler(apiKeyRepo)
@@ -23,6 +24,9 @@ func RegisterRoutes(r *gin.Engine, store storage.SessionStore, database *db.DB) 
 	// ── Public ──────────────────────────────────────────────────────────────
 	r.POST("/api/auth/signup", authH.signup)
 	r.POST("/api/auth/login", authH.login)
+	r.POST("/api/auth/forgot-password", resetH.forgotPassword)
+	r.POST("/api/auth/reset-password", resetH.resetPassword)
+	r.POST("/api/auth/test-email", testEmail) // dev only — remove in production
 
 	// ── OAuth (Google + Microsoft only) ─────────────────────────────────────
 	r.GET("/auth/:provider", oauthH.redirect)

@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/jmoiron/sqlx"
-	"interview-dojo-api/models"
+	"foxvue-api/models"
 )
 
 type SessionRepo struct {

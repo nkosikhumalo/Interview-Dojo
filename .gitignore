@@ -1,12 +1,49 @@
-# OS / editor
+# ── Secrets & credentials (NEVER commit these) ──────────────────────────────
+.env
+.env.*
+!.env.example
+backend/.env
+backend/.env.*
+frontend/.env
+frontend/.env.*
+*.pem
+*.key
+*.p12
+*.pfx
+secrets/
+credentials/
+
+# ── Node ─────────────────────────────────────────────────────────────────────
+node_modules/
+frontend/node_modules/
+dist/
+build/
+coverage/
+.npm
+.yarn/cache
+.pnp.*
+
+# ── Go ───────────────────────────────────────────────────────────────────────
+backend/bin/
+backend/*.exe
+backend/*.out
+backend/*.test
+*.out
+*.test
+
+# ── OS / editor ──────────────────────────────────────────────────────────────
 .DS_Store
 Thumbs.db
 .vscode/
 .idea/
 *.swp
 *.swo
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
 
-# Logs
+# ── Logs ─────────────────────────────────────────────────────────────────────
 logs/
 *.log
 npm-debug.log*
@@ -14,29 +51,8 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
-# Environment / secrets
-.env
-.env.*
-!.env.example
-backend/.env
-frontend/.env
-frontend/.env.*
-backend/.env.*
-
-# Node
-node_modules/
-frontend/node_modules/
-backend/node_modules/
-dist/
-build/
-coverage/
-
-# Go
-*.test
-*.out
-bin/
-
-# Generated / temporary
+# ── Temp / generated ─────────────────────────────────────────────────────────
 tmp/
 temp/
 *.local
+.cache/

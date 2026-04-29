@@ -63,6 +63,10 @@ func migrate(db *sqlx.DB) error {
 	ALTER TABLE users ADD COLUMN IF NOT EXISTS free_sessions_used INT NOT NULL DEFAULT 0;
 	ALTER TABLE users ADD COLUMN IF NOT EXISTS role TEXT NOT NULL DEFAULT 'user';
 
+	-- Password reset columns
+	ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token TEXT;
+	ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token_expires_at TIMESTAMPTZ;
+
 	-- Interview sessions table
 	CREATE TABLE IF NOT EXISTS interview_sessions (
 		id              TEXT PRIMARY KEY,

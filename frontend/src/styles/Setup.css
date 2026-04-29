@@ -300,3 +300,33 @@
 .setup-quota__link:hover {
     opacity: 0.8;
 }
+
+/* ── Responsive ── */
+@media (max-width: 640px) {
+    .setup-body {
+        padding: 1rem;
+    }
+
+    .setup-card {
+        padding: 1.25rem;
+        border-radius: 14px;
+    }
+
+    .setup-field input,
+    .setup-field textarea {
+        font-size: 16px;
+    }
+
+    /* prevent iOS zoom */
+    .setup-field textarea {
+        min-height: 160px;
+    }
+
+    .setup-submit {
+        font-size: 0.95rem;
+    }
+
+    .setup-tips {
+        padding: 0.85rem 1rem;
+    }
+}

@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"interview-dojo-api/db"
+	"foxvue-api/db"
 )
 
 type quotaHandler struct {

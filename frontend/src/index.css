@@ -1,4 +1,4 @@
-/* ── Dojo Interview — Design System ── */
+/* ── FoxVue — Design System ── */
 :root {
   /* Brand colours */
   --blue: #38bdf8;
@@ -154,4 +154,35 @@ code {
 ::selection {
   background: var(--blue-dim);
   color: var(--text-h);
+}
+
+/* ── Mobile base ── */
+@media (max-width: 640px) {
+  :root {
+    font-size: 15px;
+  }
+
+  h1 {
+    font-size: clamp(1.5rem, 6vw, 2rem);
+  }
+
+  h2 {
+    font-size: clamp(1.2rem, 5vw, 1.5rem);
+  }
+
+  /* Ensure all buttons are at least 44px tall for touch */
+  button {
+    min-height: 44px;
+  }
+
+  /* Prevent horizontal scroll */
+  body {
+    overflow-x: hidden;
+  }
+}
+
+@media (max-width: 400px) {
+  :root {
+    font-size: 14px;
+  }
 }

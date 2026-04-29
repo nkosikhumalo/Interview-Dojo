@@ -5,10 +5,10 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"interview-dojo-api/ai"
-	"interview-dojo-api/db"
-	"interview-dojo-api/models"
-	"interview-dojo-api/storage"
+	"foxvue-api/ai"
+	"foxvue-api/db"
+	"foxvue-api/models"
+	"foxvue-api/storage"
 )
 
 type interviewHandler struct {

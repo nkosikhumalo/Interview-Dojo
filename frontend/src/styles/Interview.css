@@ -759,3 +759,99 @@
     filter: brightness(1.08);
     box-shadow: 0 6px 28px rgba(56, 189, 248, 0.4);
 }
+
+/* ── Responsive ── */
+@media (max-width: 860px) {
+    .iv-panel {
+        min-height: unset;
+        padding: 1.25rem;
+    }
+
+    .iv-question-card {
+        padding: 1rem 1.25rem;
+    }
+}
+
+@media (max-width: 640px) {
+    .iv-body {
+        padding: 0.75rem;
+        gap: 0.85rem;
+    }
+
+    .iv-question-bar {
+        gap: 6px;
+    }
+
+    .iv-question-bar__right {
+        gap: 5px;
+    }
+
+    .iv-btn {
+        padding: 0.35rem 0.65rem;
+        font-size: 0.82rem;
+    }
+
+    .iv-btn span {
+        display: none;
+    }
+
+    .iv-progress {
+        font-size: 0.78rem;
+        padding: 0.18rem 0.55rem;
+    }
+
+    .iv-question-card {
+        padding: 0.9rem 1rem;
+    }
+
+    .iv-question-text {
+        font-size: 1rem;
+    }
+
+    .iv-panel {
+        padding: 1rem;
+        gap: 1rem;
+    }
+
+    .iv-record-btn {
+        max-width: 100%;
+        font-size: 0.92rem;
+        padding: 0.8rem 1.5rem;
+    }
+
+    .iv-transcript-box {
+        min-height: 90px;
+    }
+
+    .iv-ai-score-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.85rem;
+    }
+
+    .iv-score-circle {
+        width: 64px;
+        height: 64px;
+    }
+
+    .iv-score-num {
+        font-size: 1.3rem;
+    }
+
+    .iv-transcript-editor {
+        font-size: 16px;
+    }
+
+    /* prevent iOS zoom */
+}
+
+@media (max-width: 400px) {
+    .iv-badge {
+        font-size: 0.72rem;
+        padding: 0.2rem 0.5rem;
+    }
+
+    .iv-panel__title {
+        font-size: 0.78rem;
+    }
+}

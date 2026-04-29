@@ -10,7 +10,7 @@ import (
 	"sync"
 	"time"
 
-	"interview-dojo-api/models"
+	"foxvue-api/models"
 )
 
 type SessionStore interface {

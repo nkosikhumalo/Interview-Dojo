@@ -2,19 +2,20 @@ package models
 
 import "time"
 
-// User is the database row shape for the users table.
 type User struct {
-	ID                string    `db:"id"                  json:"id"`
-	Email             string    `db:"email"               json:"email"`
-	Name              string    `db:"name"                json:"name"`
-	PasswordHash      *string   `db:"password_hash"       json:"-"`
-	Provider          string    `db:"provider"            json:"provider"`
-	ProviderID        *string   `db:"provider_id"         json:"-"`
-	Plan              string    `db:"plan"                json:"plan"`
-	FreeSessionsUsed  int       `db:"free_sessions_used"  json:"freeSessionsUsed"`
-	Role              string    `db:"role"                json:"role"` // 'user' | 'admin'
-	CreatedAt         time.Time `db:"created_at"          json:"createdAt"`
-	UpdatedAt         time.Time `db:"updated_at"          json:"updatedAt"`
+	ID                   string     `db:"id"                      json:"id"`
+	Email                string     `db:"email"                   json:"email"`
+	Name                 string     `db:"name"                    json:"name"`
+	PasswordHash         *string    `db:"password_hash"           json:"-"`
+	Provider             string     `db:"provider"                json:"provider"`
+	ProviderID           *string    `db:"provider_id"             json:"-"`
+	Plan                 string     `db:"plan"                    json:"plan"`
+	FreeSessionsUsed     int        `db:"free_sessions_used"      json:"freeSessionsUsed"`
+	Role                 string     `db:"role"                    json:"role"`
+	ResetToken           *string    `db:"reset_token"             json:"-"`
+	ResetTokenExpiresAt  *time.Time `db:"reset_token_expires_at"  json:"-"`
+	CreatedAt            time.Time  `db:"created_at"              json:"createdAt"`
+	UpdatedAt            time.Time  `db:"updated_at"              json:"updatedAt"`
 }
 
 // PublicUser is what we return in API responses.

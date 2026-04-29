@@ -531,3 +531,75 @@
     background: var(--bg-raised);
     color: var(--text-h);
 }
+
+/* ── Responsive ── */
+@media (max-width: 640px) {
+    .history-page__container {
+        padding: 1rem;
+    }
+
+    .history-page__hero {
+        gap: 0.75rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .history-page__icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 11px;
+    }
+
+    .history-page__stats {
+        grid-template-columns: 1fr 1fr;
+        gap: 0.6rem;
+    }
+
+    .history-page__stat-card {
+        padding: 0.85rem;
+    }
+
+    .history-page__stat-value {
+        font-size: 1.3rem;
+    }
+
+    .history-page__session-card {
+        padding: 0.85rem 1rem;
+    }
+
+    .history-page__session-title {
+        font-size: 0.92rem;
+    }
+
+    .history-page__entry-header {
+        padding: 0.85rem 0.9rem;
+        gap: 0.5rem;
+    }
+
+    .history-page__entry-question {
+        font-size: 0.92rem;
+    }
+
+    /* Hide star badge on very small screens to prevent overflow */
+    .history-page__star-badge {
+        display: none;
+    }
+
+    .history-page__back-btn {
+        font-size: 0.88rem;
+    }
+
+    .history-page__cta {
+        font-size: 0.92rem;
+        padding: 0.65rem 1.1rem;
+    }
+}
+
+@media (max-width: 400px) {
+    .history-page__stats {
+        grid-template-columns: 1fr;
+    }
+
+    .history-page__entry-right {
+        gap: 4px;
+    }
+}

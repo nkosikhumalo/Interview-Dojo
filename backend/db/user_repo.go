@@ -5,7 +5,7 @@ import (
 	"errors"
 
 	"github.com/jmoiron/sqlx"
-	"interview-dojo-api/models"
+	"foxvue-api/models"
 )
 
 // ErrNotFound is returned when a record doesn't exist.
@@ -67,4 +67,50 @@ func (r *UserRepo) UpsertOAuth(email, name, provider, providerID string) (*model
 		email, name, provider, providerID,
 	)
 	return &u, err
+}
+
+// SetResetToken stores a hashed reset token and expiry for a user.
+func (r *UserRepo) SetResetToken(userID, hashedToken string, expiresAt interface{}) error {
+	_, err := r.db.Exec(`
+		UPDATE users
+		SET reset_token = $1, reset_token_expires_at = $2, updated_at = NOW()
+		WHERE id = $3`,
+		hashedToken, expiresAt, userID,
+	)
+	return err
+}
+
+// GetByResetToken finds a user whose hashed reset token matches and has not expired.
+func (r *UserRepo) GetByResetToken(hashedToken string) (*models.User, error) {
+	var u models.User
+	err := r.db.Get(&u, `
+		SELECT * FROM users
+		WHERE reset_token = $1
+		  AND reset_token_expires_at > NOW()`,
+		hashedToken,
+	)
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, ErrNotFound
+	}
+	return &u, err
+}
+
+// ClearResetToken removes the reset token after successful use.
+func (r *UserRepo) ClearResetToken(userID string) error {
+	_, err := r.db.Exec(`
+		UPDATE users
+		SET reset_token = NULL, reset_token_expires_at = NULL, updated_at = NOW()
+		WHERE id = $1`,
+		userID,
+	)
+	return err
+}
+
+// UpdatePassword sets a new bcrypt password hash for a user.
+func (r *UserRepo) UpdatePassword(userID, newHash string) error {
+	_, err := r.db.Exec(`
+		UPDATE users SET password_hash = $1, updated_at = NOW() WHERE id = $2`,
+		newHash, userID,
+	)
+	return err
 }
