@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const BASE = import.meta.env.VITE_API_BASE_URL || 'https://https://foxvue-backend-gnddgbgcazgtg5dn.southafricanorth-01.azurewebsites.net'
+const BASE = import.meta.env.VITE_API_BASE_URL || 'https://foxvue-backend-gnddgbgcazgtg5dn.southafricanorth-01.azurewebsites.net'
 
 // ── Axios instance with automatic JWT injection ───────────────────────────────
 const api = axios.create({ baseURL: BASE })
