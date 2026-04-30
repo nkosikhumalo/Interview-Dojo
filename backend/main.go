@@ -31,9 +31,9 @@ func main() {
 		frontendURL = "http://localhost:5173"
 	}
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{frontendURL},
+		AllowOrigins:     []string{frontendURL}, // This matches your Azure Env Var
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization", "Accept"}, // Added "Accept"
 		AllowCredentials: true,
 	}))
 
