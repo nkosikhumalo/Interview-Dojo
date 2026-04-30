@@ -1,7 +1,6 @@
 import axios from 'axios'
 
-const BASE = import.meta.env.VITE_API_BASE_URL || 'https://foxvue-backend-gnddgbgcazgtg5dn.southafricanorth-01.azurewebsites.net'
-
+const BASE = import.meta.env.VITE_API_BASE_URL || 'https://https://foxvue-backend-gnddgbgcazgtg5dn.southafricanorth-01.azurewebsites.net'
 
 // ── Axios instance with automatic JWT injection ───────────────────────────────
 const api = axios.create({ baseURL: BASE })
@@ -35,8 +34,24 @@ api.interceptors.response.use(
 
 // ── Auth endpoints ────────────────────────────────────────────────────────────
 
-export function apiSignup(name, email, password) {
-  return api.post('/api/auth/signup', { name, email, password }).then((r) => r.data)
+export function apiSignup(name, email) {
+  return api.post('/api/auth/signup', { name, email }).then((r) => r.data)
+}
+
+export function apiCompleteRegistration(email, password) {
+  return api.post('/api/auth/complete-registration', { email, password }).then((r) => r.data)
+}
+
+export function apiCheckCode(email, code) {
+  return api.post('/api/auth/check-code', { email, code }).then((r) => r.data)
+}
+
+export function apiVerifyEmail(email, code) {
+  return api.post('/api/auth/verify-email', { email, code }).then((r) => r.data)
+}
+
+export function apiResendVerification(email) {
+  return api.post('/api/auth/resend-verification', { email }).then((r) => r.data)
 }
 
 export function apiLogin(email, password) {
