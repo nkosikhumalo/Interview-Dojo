@@ -525,3 +525,97 @@
         font-size: 1rem;
     }
 }
+
+/* ── Email verification digit inputs ─────────────────────────────────────── */
+.ve-digits {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin: 1.5rem 0 1.25rem;
+}
+
+.ve-digit {
+    width: 48px;
+    height: 58px;
+    text-align: center;
+    font-size: 1.6rem;
+    font-weight: 700;
+    font-family: monospace;
+    border: 2px solid #1e2d3d;
+    border-radius: 10px;
+    background: #0f172a;
+    color: #f1f5f9;
+    caret-color: #38bdf8;
+    outline: none;
+    transition: border-color 0.15s;
+}
+
+.ve-digit:focus {
+    border-color: #38bdf8;
+    box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
+}
+
+.ve-digit:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.lp-success {
+    font-size: 0.85rem;
+    color: #4ade80;
+    margin: 0.5rem 0;
+    text-align: center;
+}
+
+/* ── Verify page — section labels ────────────────────────────────────────── */
+.ve-section-label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #64748b;
+    margin: 1.25rem 0 0.6rem;
+}
+
+/* ── Password section — locked until PIN full ────────────────────────────── */
+.ve-pw-section {
+    opacity: 0.4;
+    pointer-events: none;
+    transition: opacity 0.25s;
+}
+
+.ve-pw-section--active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* ── PIN digit done state ────────────────────────────────────────────────── */
+.ve-digit--done {
+    border-color: #4ade80;
+    color: #4ade80;
+}
+
+/* ── Password strength checklist ─────────────────────────────────────────── */
+.ve-strength {
+    list-style: none;
+    padding: 0;
+    margin: 0.4rem 0 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.ve-strength li {
+    font-size: 0.78rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.ve-strength--ok {
+    color: #4ade80;
+}
+
+.ve-strength--fail {
+    color: #64748b;
+}

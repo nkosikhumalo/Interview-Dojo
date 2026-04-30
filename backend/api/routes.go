@@ -12,8 +12,12 @@ func RegisterRoutes(r *gin.Engine, store storage.SessionStore, database *db.DB) 
 	sessionRepo := db.NewSessionRepo(database.DB)
 	apiKeyRepo := db.NewAPIKeyRepo(database.DB)
 	quotaRepo := db.NewQuotaRepo(database.DB)
+	verifRepo := db.NewVerificationRepo(database.DB)
 
-	authH := newAuthHandler(userRepo)
+	// Clean up expired verifications at startup
+	_ = verifRepo.DeleteExpired()
+
+	authH := newAuthHandler(userRepo, verifRepo)
 	resetH := newResetHandler(userRepo)
 	oauthH := newOAuthHandler(userRepo)
 	interviewH := newInterviewHandler(store, sessionRepo, apiKeyRepo, quotaRepo)
@@ -23,6 +27,10 @@ func RegisterRoutes(r *gin.Engine, store storage.SessionStore, database *db.DB) 
 
 	// ── Public ──────────────────────────────────────────────────────────────
 	r.POST("/api/auth/signup", authH.signup)
+	r.POST("/api/auth/check-code", authH.checkCode)
+	r.POST("/api/auth/complete-registration", authH.completeRegistration)
+	r.POST("/api/auth/verify-email", authH.completeRegistration) // alias
+	r.POST("/api/auth/resend-verification", authH.resendVerification)
 	r.POST("/api/auth/login", authH.login)
 	r.POST("/api/auth/forgot-password", resetH.forgotPassword)
 	r.POST("/api/auth/reset-password", resetH.resetPassword)

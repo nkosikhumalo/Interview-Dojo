@@ -26,14 +26,14 @@ export default function LoginPage() {
   const [remember, setRemember] = useState(() => Boolean(localStorage.getItem('dojo_remembered_email')))
   const [busy, setBusy] = useState(false)
   const [loginError, setLoginError] = useState(searchParams.get('error') || '')
+  const [loginSuccess] = useState(searchParams.get('verified') === '1' ? 'Email verified! You can now sign in.' : '')
 
-  // signup
+  // signup — name + email only
   const [suName, setSuName] = useState('')
   const [suEmail, setSuEmail] = useState('')
-  const [suPassword, setSuPassword] = useState('')
-  const [suConfirm, setSuConfirm] = useState('')
   const [suBusy, setSuBusy] = useState(false)
   const [suError, setSuError] = useState('')
+  const [suSent, setSuSent] = useState(false)
 
   // forgot
   const [fgEmail, setFgEmail] = useState('')
@@ -64,13 +64,12 @@ export default function LoginPage() {
   function handleSignup(e) {
     e.preventDefault()
     setSuError('')
-    if (!suName || !suEmail || !suPassword || !suConfirm) { setSuError('All fields are required.'); return }
-    if (suPassword.length < 8) { setSuError('Password must be at least 8 characters.'); return }
-    if (suPassword !== suConfirm) { setSuError('Passwords do not match.'); return }
+    if (!suName.trim()) { setSuError('Please enter your name.'); return }
+    if (!suEmail.trim()) { setSuError('Please enter your email.'); return }
     setSuBusy(true)
-    apiSignup(suName, suEmail, suPassword)
-      .then((data) => { localStorage.setItem('dojo_token', data.token); navigate('/setup') })
-      .catch((err) => setSuError(err.response?.data?.error || 'Failed to create account.'))
+    apiSignup(suName.trim(), suEmail.trim())
+      .then(() => setSuSent(true))
+      .catch((err) => setSuError(err.response?.data?.error || 'Failed to register. Please try again.'))
       .finally(() => setSuBusy(false))
   }
 
@@ -133,6 +132,7 @@ export default function LoginPage() {
                 Forgot password?
               </button>
             </div>
+            {loginSuccess && <p className="lp-success">{loginSuccess}</p>}
             {loginError && <p className="lp-error">{loginError}</p>}
             <button className="lp-submit" type="submit" disabled={busy}>
               {busy ? 'Signing in…' : 'Sign in'}
@@ -159,44 +159,57 @@ export default function LoginPage() {
         <div className="lp-card">
           <div className="lp-belt" aria-hidden />
           <Brand />
-          <form onSubmit={handleSignup} noValidate>
-            <div className="lp-field">
-              <label htmlFor="su-name">Full Name</label>
-              <input id="su-name" type="text" autoComplete="name"
-                placeholder="Alex Johnson" value={suName}
-                onChange={e => { setSuName(e.target.value); setSuError('') }} />
+
+          {suSent ? (
+            <div className="lp-sent">
+              <div className="lp-sent__icon">
+                <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                  <polyline points="22,6 12,13 2,6" />
+                </svg>
+              </div>
+              <h3>Check your email</h3>
+              <p>We sent a verification code to <strong>{suEmail}</strong>. Open the link in the email to verify and create your password.</p>
+              <div className="lp-sent__actions">
+                <button className="lp-submit" type="button"
+                  onClick={() => navigate(`/verify-email?email=${encodeURIComponent(suEmail)}`)}>
+                  Enter code manually
+                </button>
+                <button type="button" className="lp-guest" onClick={() => setView('login')}>
+                  Back to sign in
+                </button>
+              </div>
             </div>
-            <div className="lp-field">
-              <label htmlFor="su-email">Email</label>
-              <input id="su-email" type="email" autoComplete="email"
-                placeholder="you@example.com" value={suEmail}
-                onChange={e => { setSuEmail(e.target.value); setSuError('') }} />
-            </div>
-            <div className="lp-field">
-              <label htmlFor="su-pw">Password</label>
-              <input id="su-pw" type="password" autoComplete="new-password"
-                placeholder="Min. 8 characters" value={suPassword}
-                onChange={e => { setSuPassword(e.target.value); setSuError('') }} />
-            </div>
-            <div className="lp-field">
-              <label htmlFor="su-confirm">Confirm Password</label>
-              <input id="su-confirm" type="password" autoComplete="new-password"
-                placeholder="••••••••" value={suConfirm}
-                onChange={e => { setSuConfirm(e.target.value); setSuError('') }} />
-            </div>
-            {suError && <p className="lp-error">{suError}</p>}
-            <button className="lp-submit" type="submit" disabled={suBusy}>
-              {suBusy ? 'Creating account…' : 'Create account'}
-            </button>
-          </form>
-          <div className="lp-divider">or</div>
-          <button type="button" className="lp-guest" onClick={handleGuest}>
-            Try for free — no account needed
-          </button>
-          <p className="lp-switch">
-            Already have an account?{' '}
-            <button type="button" className="lp-link" onClick={() => setView('login')}>Sign in</button>
-          </p>
+          ) : (
+            <>
+              <form onSubmit={handleSignup} noValidate>
+                <div className="lp-field">
+                  <label htmlFor="su-name">Full Name</label>
+                  <input id="su-name" type="text" autoComplete="name"
+                    placeholder="Alex Johnson" value={suName}
+                    onChange={e => { setSuName(e.target.value); setSuError('') }} />
+                </div>
+                <div className="lp-field">
+                  <label htmlFor="su-email">Email</label>
+                  <input id="su-email" type="email" autoComplete="email"
+                    placeholder="you@example.com" value={suEmail}
+                    onChange={e => { setSuEmail(e.target.value); setSuError('') }} />
+                </div>
+                {suError && <p className="lp-error">{suError}</p>}
+                <button className="lp-submit" type="submit" disabled={suBusy}>
+                  {suBusy ? <><span className="lp-spinner" />Sending code…</> : 'Register'}
+                </button>
+              </form>
+              <div className="lp-divider">or</div>
+              <button type="button" className="lp-guest" onClick={handleGuest}>
+                Try for free — no account needed
+              </button>
+              <p className="lp-switch">
+                Already have an account?{' '}
+                <button type="button" className="lp-link" onClick={() => setView('login')}>Sign in</button>
+              </p>
+            </>
+          )}
         </div>
       </div>
     </div>

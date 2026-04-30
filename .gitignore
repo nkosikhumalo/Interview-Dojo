@@ -1,3 +1,6 @@
+# ── Frontend service layer (optional — remove if you want to track it) ───────
+frontend/src/services/api.js
+
 # ── Secrets & credentials (NEVER commit these) ──────────────────────────────
 .env
 .env.*

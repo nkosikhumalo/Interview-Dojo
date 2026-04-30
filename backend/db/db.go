@@ -132,6 +132,24 @@ func migrate(db *sqlx.DB) error {
 	);
 
 	CREATE INDEX IF NOT EXISTS idx_apikeys_user ON user_api_keys(user_id);
+
+	-- Pending email verifications (pre-activation, not yet real users)
+	CREATE TABLE IF NOT EXISTS email_verifications (
+		id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+		email        TEXT NOT NULL,
+		name         TEXT NOT NULL DEFAULT '',
+		password_hash TEXT NOT NULL,
+		code_hash    TEXT NOT NULL,
+		attempts     INT NOT NULL DEFAULT 0,
+		verified     BOOLEAN NOT NULL DEFAULT FALSE,
+		expires_at   TIMESTAMPTZ NOT NULL,
+		created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+		UNIQUE(email)
+	);
+
+	ALTER TABLE email_verifications ADD COLUMN IF NOT EXISTS verified BOOLEAN NOT NULL DEFAULT FALSE;
+
+	CREATE INDEX IF NOT EXISTS idx_email_verif_email ON email_verifications(email);
 	`
 
 	_, err := db.Exec(schema)

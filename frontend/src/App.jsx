@@ -11,6 +11,7 @@ import OAuthCallback from './Pages/OAuthCallback'
 import ApiProviders from './Pages/ApiProviders'
 import Pricing from './Pages/Pricing'
 import ResetPassword from './Pages/ResetPassword'
+import VerifyEmail from './Pages/VerifyEmail'
 
 function PrivateRoute({ children }) {
   const isLoggedIn = Boolean(
@@ -36,6 +37,7 @@ export default function App() {
       <InterviewProvider>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/verify-email" element={<VerifyEmail />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/auth/callback" element={<OAuthCallback />} />
           <Route path="/setup" element={<PrivateRoute><Setup /></PrivateRoute>} />
