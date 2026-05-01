@@ -23,7 +23,7 @@ FoxVue generates tailored interview questions using Gemini AI, records your voic
 
 ## Screenshots
 
-| Login | Setup | Interview |
+| Login | Setup | History |
 |:---:|:---:|:---:|
 | ![](frontend/src/assets/1.png) | ![](frontend/src/assets/2.png) | ![](frontend/src/assets/3.png) |
 
@@ -31,7 +31,7 @@ FoxVue generates tailored interview questions using Gemini AI, records your voic
 |:---:|:---:|:---:|
 | ![](frontend/src/assets/4.png) | ![](frontend/src/assets/5.png) | ![](frontend/src/assets/6.png) |
 
-| Voice | AI Response | History |
+| Voice | AI Response | Interview |
 |:---:|:---:|:---:|
 | ![](frontend/src/assets/7.png) | ![](frontend/src/assets/8.png) | ![](frontend/src/assets/9.png) |
 
