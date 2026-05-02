@@ -26,7 +26,13 @@ export default function LoginPage() {
   const [remember, setRemember] = useState(() => Boolean(localStorage.getItem('dojo_remembered_email')))
   const [busy, setBusy] = useState(false)
   const [loginError, setLoginError] = useState(searchParams.get('error') || '')
-  const [loginSuccess] = useState(searchParams.get('verified') === '1' ? 'Email verified! You can now sign in.' : '')
+  const [loginSuccess] = useState(
+    searchParams.get('verified') === '1'
+      ? 'Email verified! You can now sign in.'
+      : searchParams.get('trialEnded') === '1'
+        ? 'Your free trial has ended. Create an account to keep going.'
+        : ''
+  )
 
   // signup — name + email only
   const [suName, setSuName] = useState('')

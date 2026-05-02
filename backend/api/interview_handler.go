@@ -51,7 +51,7 @@ func (h *interviewHandler) generateQuestions(c *gin.Context) {
 
 	provider, hasByok := h.providerForUser(uid)
 
-	// Enforce quota only when using platform keys (not BYOK)
+	// Enforce quota only for authenticated users on platform keys
 	if uid != "" && !hasByok {
 		status, err := h.quota.Get(uid)
 		if err == nil && status.Exceeded {
@@ -70,7 +70,6 @@ func (h *interviewHandler) generateQuestions(c *gin.Context) {
 	if uid != "" {
 		go func() {
 			_ = h.sessions.CreateSession(session.ID, uid, req.JobTitle, req.JobDescription)
-			// Increment quota counter (no-op for paid plans or BYOK users)
 			if !hasByok {
 				_ = h.quota.Increment(uid)
 			}
@@ -91,10 +90,19 @@ func (h *interviewHandler) generateQuestions(c *gin.Context) {
 		h.store.UpdateQuestion(session.ID, &questions[0])
 	}
 
-	c.JSON(http.StatusOK, models.GenerateQuestionsResponse{
-		SessionID: session.ID,
-		Questions: questions,
-	})
+	resp := gin.H{
+		"sessionId": session.ID,
+		"questions": questions,
+	}
+
+	// Include trial info for guest users so the frontend can show remaining tries
+	if uid == "" {
+		if remaining, ok := c.Get("trialRemaining"); ok {
+			resp["trialRemaining"] = remaining
+		}
+	}
+
+	c.JSON(http.StatusOK, resp)
 }
 
 // POST /api/interview/evaluate-answer

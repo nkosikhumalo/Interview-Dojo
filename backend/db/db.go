@@ -150,6 +150,16 @@ func migrate(db *sqlx.DB) error {
 	ALTER TABLE email_verifications ADD COLUMN IF NOT EXISTS verified BOOLEAN NOT NULL DEFAULT FALSE;
 
 	CREATE INDEX IF NOT EXISTS idx_email_verif_email ON email_verifications(email);
+
+	-- Guest free trials
+	CREATE TABLE IF NOT EXISTS trials (
+		id             UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+		ip_address     TEXT NOT NULL,
+		tries_remaining INT NOT NULL DEFAULT 3,
+		created_at     TIMESTAMPTZ NOT NULL DEFAULT NOW()
+	);
+
+	CREATE UNIQUE INDEX IF NOT EXISTS idx_trials_ip ON trials(ip_address);
 	`
 
 	_, err := db.Exec(schema)

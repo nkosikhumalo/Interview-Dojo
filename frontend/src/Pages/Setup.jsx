@@ -83,6 +83,11 @@ export default function Setup() {
       navigate('/interview')
     } catch (e) {
       if (e.response?.status === 402) {
+        const code = e.response?.data?.code
+        if (code === 'TRIAL_EXHAUSTED' || code === 'TRIAL_INVALID') {
+          navigate('/login?trialEnded=1')
+          return
+        }
         navigate('/pricing')
         return
       }

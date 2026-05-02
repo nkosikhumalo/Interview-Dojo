@@ -70,6 +70,10 @@ export function apiGetMe() {
   return api.get('/api/auth/me').then((r) => r.data)
 }
 
+export function getTrialStatus() {
+  return api.get('/api/trial/status').then((r) => r.data)
+}
+
 export function getQuota() {
   return api.get('/api/quota').then((r) => r.data)
 }

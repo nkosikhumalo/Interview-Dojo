@@ -13,6 +13,7 @@ func RegisterRoutes(r *gin.Engine, store storage.SessionStore, database *db.DB) 
 	apiKeyRepo := db.NewAPIKeyRepo(database.DB)
 	quotaRepo := db.NewQuotaRepo(database.DB)
 	verifRepo := db.NewVerificationRepo(database.DB)
+	trialRepo := db.NewTrialRepo(database.DB)
 
 	// Clean up expired verifications at startup
 	_ = verifRepo.DeleteExpired()
@@ -24,6 +25,7 @@ func RegisterRoutes(r *gin.Engine, store storage.SessionStore, database *db.DB) 
 	apiKeyH := newAPIKeyHandler(apiKeyRepo)
 	transcribeH := newTranscribeHandler(apiKeyRepo)
 	quotaH := newQuotaHandler(quotaRepo)
+	trialH := newTrialHandler(trialRepo)
 
 	// ── Public ──────────────────────────────────────────────────────────────
 	r.POST("/api/auth/signup", authH.signup)
@@ -34,9 +36,11 @@ func RegisterRoutes(r *gin.Engine, store storage.SessionStore, database *db.DB) 
 	r.POST("/api/auth/login", authH.login)
 	r.POST("/api/auth/forgot-password", resetH.forgotPassword)
 	r.POST("/api/auth/reset-password", resetH.resetPassword)
-	r.POST("/api/auth/test-email", testEmail) // dev only — remove in production
+	r.POST("/api/auth/test-email", testEmail) // dev only
 
-	// ── OAuth (Google + Microsoft only) ─────────────────────────────────────
+	r.GET("/api/trial/status", trialH.status)
+
+	// ── OAuth ────────────────────────────────────────────────────────────────
 	r.GET("/auth/:provider", oauthH.redirect)
 	r.GET("/auth/:provider/callback", oauthH.callback)
 
@@ -47,21 +51,26 @@ func RegisterRoutes(r *gin.Engine, store storage.SessionStore, database *db.DB) 
 	auth.GET("/api/auth/me", authH.me)
 	auth.GET("/api/quota", quotaH.get)
 
-	// BYOK key management
 	auth.POST("/api/apikeys", apiKeyH.save)
 	auth.GET("/api/apikeys", apiKeyH.list)
 	auth.POST("/api/apikeys/:id/test", apiKeyH.test)
 	auth.POST("/api/apikeys/:id/activate", apiKeyH.activate)
 	auth.DELETE("/api/apikeys/:id", apiKeyH.delete)
 
-	// ── Interview routes — RequireInterviewAuth (must have a real user ID) ───
+	// ── Interview routes — TrialMiddleware allows both guests and JWT users ──
+	// Guests get trial enforcement; JWT users pass straight through.
+	trial := r.Group("/")
+	trial.Use(TrialMiddleware(trialRepo))
+
+	trial.POST("/api/transcribe", transcribeH.transcribeAudio)
+	trial.POST("/api/interview/generate-questions", interviewH.generateQuestions)
+	trial.POST("/api/interview/evaluate-answer", interviewH.evaluateAnswer)
+	trial.GET("/api/ws", handleWebSocket)
+
+	// ── Authenticated-only interview routes (history requires an account) ───
 	interview := r.Group("/")
 	interview.Use(RequireInterviewAuth)
 
-	interview.POST("/api/transcribe", transcribeH.transcribeAudio)
-	interview.POST("/api/interview/generate-questions", interviewH.generateQuestions)
-	interview.POST("/api/interview/evaluate-answer", interviewH.evaluateAnswer)
 	interview.GET("/api/interview/sessions", interviewH.getAllSessions)
 	interview.GET("/api/interview/history", interviewH.getHistory)
-	interview.GET("/api/ws", handleWebSocket)
 }
