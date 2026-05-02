@@ -94,6 +94,11 @@ func (h *resetHandler) resetPassword(c *gin.Context) {
 		return
 	}
 
+	if err := validatePassword(body.Password); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
 	hashedToken := hashToken(body.Token)
 	log.Printf("[reset] reset-password attempt with token hash: %s...", hashedToken[:8])
 

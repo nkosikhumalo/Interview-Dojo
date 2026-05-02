@@ -3,6 +3,29 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { apiResetPassword } from '../services/api'
 import '../Pages/LoginPage.css'
 
+function PasswordStrength({ password }) {
+    const checks = [
+        { label: 'At least 8 characters', ok: password.length >= 8 },
+        { label: 'One uppercase letter', ok: /[A-Z]/.test(password) },
+        { label: 'One number', ok: /[0-9]/.test(password) },
+        { label: 'One symbol (!@#$…)', ok: /[^A-Za-z0-9]/.test(password) },
+    ]
+    if (!password) return null
+    return (
+        <ul className="ve-strength">
+            {checks.map((c) => (
+                <li key={c.label} className={c.ok ? 've-strength--ok' : 've-strength--fail'}>
+                    <span>{c.ok ? '✓' : '✗'}</span> {c.label}
+                </li>
+            ))}
+        </ul>
+    )
+}
+
+function passwordValid(pw) {
+    return pw.length >= 8 && /[A-Z]/.test(pw) && /[0-9]/.test(pw) && /[^A-Za-z0-9]/.test(pw)
+}
+
 export default function ResetPassword() {
     const navigate = useNavigate()
     const [searchParams] = useSearchParams()
@@ -18,7 +41,7 @@ export default function ResetPassword() {
         e.preventDefault()
         setError('')
         if (!token) { setError('Invalid or missing reset token.'); return }
-        if (password.length < 8) { setError('Password must be at least 8 characters.'); return }
+        if (!passwordValid(password)) { setError('Password does not meet the requirements.'); return }
         if (password !== confirm) { setError('Passwords do not match.'); return }
 
         setBusy(true)
@@ -75,11 +98,12 @@ export default function ResetPassword() {
                                     id="rp-pw"
                                     type="password"
                                     autoComplete="new-password"
-                                    placeholder="Min. 8 characters"
+                                    placeholder="Min. 8 chars, uppercase, number, symbol"
                                     value={password}
                                     onChange={e => { setPassword(e.target.value); setError('') }}
                                 />
                             </div>
+                            <PasswordStrength password={password} />
 
                             <div className="lp-field">
                                 <label htmlFor="rp-confirm">Confirm Password</label>
@@ -95,7 +119,7 @@ export default function ResetPassword() {
 
                             {error && <p className="lp-error">{error}</p>}
 
-                            <button className="lp-submit" type="submit" disabled={busy || !token}>
+                            <button className="lp-submit" type="submit" disabled={busy || !token || !passwordValid(password) || password !== confirm}>
                                 {busy ? <><span className="lp-spinner" />Updating...</> : 'Set New Password'}
                             </button>
 

@@ -64,10 +64,12 @@ func (r *VerificationRepo) IncrementAttempts(email string) error {
 	return err
 }
 
-// MarkVerified sets verified=true after a correct PIN entry.
+// MarkVerified sets verified=true and clears the code_hash so the PIN cannot be reused.
 func (r *VerificationRepo) MarkVerified(email string) error {
 	_, err := r.db.Exec(`
-		UPDATE email_verifications SET verified = TRUE WHERE email = $1`, email)
+		UPDATE email_verifications 
+		SET verified = TRUE, code_hash = '', attempts = 0
+		WHERE email = $1`, email)
 	return err
 }
 

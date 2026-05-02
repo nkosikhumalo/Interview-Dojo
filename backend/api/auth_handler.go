@@ -143,6 +143,12 @@ func (h *authHandler) checkCode(c *gin.Context) {
 		return
 	}
 
+	// PIN already used — don't allow re-entry
+	if pending.Verified {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "This code has already been used. Please create your password."})
+		return
+	}
+
 	if time.Now().After(pending.ExpiresAt) {
 		_ = h.verifs.Delete(body.Email)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Verification code has expired. Please sign up again."})
